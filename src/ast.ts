@@ -45,7 +45,10 @@ export class BinaryOpNode extends ASTNode {
 
     protected type = 'BinaryOp';
 
-    constructor ( public operator: string, public left: ASTNode, public right: ASTNode, position?: Position ) {
+    constructor (
+        public operator: string, public left: ASTNode, public right: ASTNode,
+        position?: Position
+    ) {
         super( position );
     }
 
@@ -76,6 +79,52 @@ export class GroupNode extends ASTNode {
     protected type = 'Group';
 
     constructor ( public expression: ASTNode, position?: Position ) {
+        super( position );
+    }
+
+}
+
+export class SqrtNode extends ASTNode {
+
+    protected type = 'Sqrt';
+
+    constructor ( public radicand: ASTNode, public degree?: ASTNode, position?: Position ) {
+        super( position );
+    }
+
+}
+
+export class PowerNode extends ASTNode {
+
+    protected type = 'Power';
+
+    constructor ( public base: ASTNode, public exponent: ASTNode, position?: Position ) {
+        super( position );
+    }
+
+}
+
+export class SummationNode extends ASTNode {
+
+    protected type = 'Summation';
+
+    constructor (
+        public variable: string, public lower: ASTNode, public upper: ASTNode,
+        public expression: ASTNode, position?: Position
+    ) {
+        super( position );
+    }
+
+}
+
+export class ProductNode extends ASTNode {
+
+    protected type = 'Product';
+
+    constructor (
+        public variable: string, public lower: ASTNode, public upper: ASTNode,
+        public expression: ASTNode, position?: Position
+    ) {
         super( position );
     }
 
