@@ -14,6 +14,20 @@ export class Visualizer {
         '+': 'positiv', '-': 'negative', '!': 'not'
     };
 
+    public visualize ( node: ASTNode, options: VisualizationOptions = {} ) : string {
+        if ( options.compact ) return this.get( node );
+
+        const lines: string[] = [];
+        const children = this.children( node );
+        lines.push( this.label( node, options ) );
+
+        for ( let i = 0; i < children.length; i++ ) {
+            this.tree( children[ i ], '', i === children.length - 1, lines, options );
+        }
+
+        return lines.join( '\n' );
+    }
+
     private tree (
         node: ASTNode, prefix: string, isLast: boolean, lines: string[],
         options: VisualizationOptions
