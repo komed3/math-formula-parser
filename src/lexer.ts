@@ -42,7 +42,7 @@ export class Lexer {
     private column = 1;
     private tokens: Token[] = [];
 
-    constructor ( private input: string ) {}
+    constructor ( private readonly input: string ) {}
 
     public tokenize () : Token[] {
         this.tokens = [];
