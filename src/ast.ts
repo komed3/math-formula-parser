@@ -1,6 +1,6 @@
 import { Position } from './types';
 
-export abstract class ASTNode {
+abstract class ASTNode {
     protected type!: string;
     protected position?: Position;
 
