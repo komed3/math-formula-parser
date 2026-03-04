@@ -14,6 +14,23 @@ export class Visualizer {
         '+': 'positiv', '-': 'negative', '!': 'not'
     };
 
+    private tree (
+        node: ASTNode, prefix: string, isLast: boolean, lines: string[],
+        options: VisualizationOptions
+    ) : void {
+        const label = this.label( node, options );
+        const connector = isLast ? '└─ ' : '├─ ';
+        const currentLine = prefix + connector + label;
+        lines.push( currentLine );
+
+        const children = this.children( node );
+        const nextPrefix = prefix + ( isLast ? '   ' : '│  ' );
+
+        for ( let i = 0; i < children.length; i++ ) {
+            this.tree( children[ i ], nextPrefix, i === children.length - 1, lines, options );
+        }
+    }
+
     private label ( node: ASTNode, options: VisualizationOptions ) : string {
         let label = '';
 
