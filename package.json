@@ -2,7 +2,7 @@
   "name": "math-formula-parser",
   "description": "TypeScript parser for complex mathematical formulas into Abstract Syntax Trees (AST)",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha",
   "author": {
     "name": "komed3 (Paul Köhler)",
     "email": "webmaster@komed3.de",
