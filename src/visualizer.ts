@@ -3,6 +3,74 @@ import * as AST from './ast';
 
 export class Visualizer {
 
+    private static readonly BINARY_OPS: Record< string, string > = {
+        '+': 'addition', '-': 'substraction', '*': 'multiplication', '/': 'division',
+        '^': 'power', '%': 'modulo', '==': 'equal', '!=': 'not equal', '<': 'lower than',
+        '>': 'greater than', '<=': 'lower than equal', '>=': 'greater than equal',
+        '&&': 'and', '||': 'or', '=': 'assign'
+    };
+
+    private static readonly UNARY_OPS: Record< string, string > = {
+        '+': 'positiv', '-': 'negative', '!': 'not'
+    };
+
+    private label ( node: ASTNode, options: VisualizationOptions ) : string {
+        let label = '';
+
+        if ( node instanceof AST.NumberNode ) {
+            label = `number: ${node.value}`;
+        } else if ( node instanceof AST.VariableNode ) {
+            label = `variable: ${node.name}`;
+        } else if ( node instanceof AST.ConstantNode ) {
+            label = `const: ${node.name} = ${node.value}`;
+        } else if ( node instanceof AST.BinaryOpNode ) {
+            label = `binary: ${ Visualizer.BINARY_OPS[ node.operator ] || node.operator }`;
+        } else if ( node instanceof AST.UnaryOpNode ) {
+            label = `unary: ${ Visualizer.UNARY_OPS[ node.operator ] || node.operator }`;
+        } else if ( node instanceof AST.FunctionNode ) {
+            label = `func: ${node.name}(${node.args.length})`;
+        } else if ( node instanceof AST.GroupNode ) {
+            label = `group`;
+        } else if ( node instanceof AST.SqrtNode ) {
+            label = node.degree ? `root: ${ this.get( node.degree ) }-th` : `sqrt`;
+        } else if ( node instanceof AST.PowerNode ) {
+            label = `power`;
+        } else if ( node instanceof AST.SummationNode ) {
+            label = `sum: Σ(i=${ this.get( node.lower ) }..${ this.get( node.upper ) })`;
+        } else if ( node instanceof AST.ProductNode ) {
+            label = `product: Π(i=${ this.get( node.lower ) }..${ this.get( node.upper ) })`;
+        } else if ( node instanceof AST.IntegralNode ) {
+            label = node.lower && node.upper
+                ? `integral: ∫[${ this.get( node.lower ) }, ${ this.get( node.upper ) }] d${node.variable}`
+                : `integral: ∫ d${node.variable}`;
+        } else if ( node instanceof AST.DerivativeNode ) {
+            label = `derivative: d/d${node.variable}`;
+        } else if ( node instanceof AST.PartialDerivativeNode ) {
+            label = `partial: ∂/∂${node.variable}`;
+        } else if ( node instanceof AST.VectorNode ) {
+            label = `vector[${node.elements.length}]`;
+        } else if ( node instanceof AST.MatrixNode ) {
+            label = `matrix[${node.rows.length}x${ node.rows[ 0 ]?.length || 0 }]`;
+        } else if ( node instanceof AST.ComplexNode ) {
+            label = `complex`;
+        } else if ( node instanceof AST.RangeNode ) {
+            const li = node.lowerInclusive ? '[' : '(';
+            const ui = node.upperInclusive ? ']' : ')';
+            label = `range: ${li}${ this.get( node.lower ) }..${ this.get( node.upper ) }${ui}`;
+        } else if ( node instanceof AST.IndexNode ) {
+            label = `index: [${ this.get( node.index ) }]`;
+        } else if ( node instanceof AST.EllipsisNode ) {
+            label = `ellipsis`;
+        } else {
+            label = `${node.type}`;
+        }
+
+        if ( options.showTypes ) label = `[${node.type}] ${label}`;
+        if ( options.showPositions && node.position ) label += ` @${node.position.line}:${node.position.column}`;
+
+        return label;
+    }
+
     private get ( node: ASTNode ) : string {
         if ( node instanceof AST.NumberNode ) {
             return node.value.toString();
