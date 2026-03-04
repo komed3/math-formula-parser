@@ -51,7 +51,7 @@ export class Lexer {
         this.column = 1;
 
         while ( this.position < this.input.length ) {
-            if ( !this.scanToken() ) {
+            if ( ! this.scanToken() ) {
                 throw new Error( `Lexer error at ${this.line}:${this.column}` );
             }
         }
@@ -63,6 +63,26 @@ export class Lexer {
         } );
 
         return this.tokens;
+    }
+
+    private scanToken () : boolean {
+        for ( const pattern of Lexer.PATTERN ) {
+            const regex = new RegExp( `^${pattern.regex.source}` );
+            const match = this.input.slice( this.position ).match( regex );
+
+            if ( match ) {
+                if ( ! pattern.skip ) this.tokens.push( {
+                    type: pattern.type,
+                    value: match[ 0 ],
+                    position: this.getPos()
+                } );
+
+                this.advance( match[ 0 ] );
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
