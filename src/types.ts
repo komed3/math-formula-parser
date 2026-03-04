@@ -36,10 +36,19 @@ export enum TokenType {
     UNDER = 'UNDER',
     ELLIPSIS = 'ELLIPSIS',
     EOF = 'EOF'
-}
+};
 
 export interface Position {
     line: number;
     column: number;
     offset: number;
-}
+};
+
+export type ASTNode = any;
+
+export interface VisualizationOptions {
+    showTypes?: boolean;
+    showPositions?: boolean;
+    indentSize?: number;
+    compact?: boolean;
+};
