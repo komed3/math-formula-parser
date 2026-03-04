@@ -155,3 +155,46 @@ export class ComplexNode extends ASTNode {
         super( position );
     }
 }
+
+export class IndexNode extends ASTNode {
+    protected type = 'Index';
+
+    constructor ( public base: ASTNode, public index: ASTNode, position?: Position ) {
+        super( position );
+    }
+}
+
+export class SubscriptNode extends ASTNode {
+    protected type = 'Subscript';
+
+    constructor ( public base: ASTNode, public subscript: ASTNode, position?: Position ) {
+        super( position );
+    }
+}
+
+export class RangeNode extends ASTNode {
+    protected type = 'Range';
+
+    constructor (
+        public lower: ASTNode, public upper: ASTNode, public lowerInclusive: boolean,
+        public upperInclusive: boolean, position?: Position
+    ) {
+        super( position );
+    }
+}
+
+export class EllipsisNode extends ASTNode {
+    protected type = 'Ellipsis';
+
+    constructor ( public left: ASTNode, public right: ASTNode, position?: Position ) {
+        super( position );
+    }
+}
+
+export class FactorialNode extends ASTNode {
+    protected type = 'Factorial';
+
+    constructor ( public operand: ASTNode, position?: Position ) {
+        super( position );
+    }
+}
