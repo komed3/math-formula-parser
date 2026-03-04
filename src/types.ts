@@ -38,6 +38,18 @@ export enum TokenType {
     EOF = 'EOF'
 };
 
+export interface Token {
+    type: TokenType;
+    value: string;
+    position: Position;
+};
+
+export interface TokenPattern {
+    regex: RegExp;
+    type: TokenType;
+    skip?: boolean;
+};
+
 export interface Position {
     line: number;
     column: number;
