@@ -3,7 +3,7 @@ import { TokenType } from './types';
 
 export class Lexer {
 
-    private static readonly PATTERN = [
+    private static readonly PATTERN: TokenPattern[] = [
         { regex: /\s+/, type: TokenType.WHITESPACE, skip: true },
         { regex: /\d+\.\d+([eE][+-]?\d+)?/, type: TokenType.NUMBER },
         { regex: /\d+([eE][+-]?\d+)?/, type: TokenType.NUMBER },
@@ -83,6 +83,23 @@ export class Lexer {
         }
 
         return false;
+    }
+
+    private advance ( text: string ) : void {
+        for ( const char of text ) {
+            if ( char === '\n' ) {
+                this.line++;
+                this.column = 1;
+            } else {
+                this.column++;
+            }
+        }
+
+        this.position += text.length;
+    }
+
+    private getPos () : Position {
+        return { line: this.line, column: this.column, offset: this.position };
     }
 
 }
