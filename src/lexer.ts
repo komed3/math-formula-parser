@@ -3,6 +3,40 @@ import { TokenType } from './types';
 
 export class Lexer {
 
+    private static readonly PATTERN = [
+        { regex: /\s+/, type: TokenType.WHITESPACE, skip: true },
+        { regex: /\d+\.\d+([eE][+-]?\d+)?/, type: TokenType.NUMBER },
+        { regex: /\d+([eE][+-]?\d+)?/, type: TokenType.NUMBER },
+        { regex: /==/, type: TokenType.EQUAL },
+        { regex: /!=/, type: TokenType.NOT_EQUAL },
+        { regex: /<=/, type: TokenType.LESS_EQUAL },
+        { regex: />=/, type: TokenType.GREATER_EQUAL },
+        { regex: /&&/, type: TokenType.AND },
+        { regex: /\|\|/, type: TokenType.OR },
+        { regex: /\+/, type: TokenType.PLUS },
+        { regex: /\-/, type: TokenType.MINUS },
+        { regex: /\*/, type: TokenType.MULTIPLY },
+        { regex: /\//, type: TokenType.DIVIDE },
+        { regex: /\^/, type: TokenType.POWER },
+        { regex: /%/, type: TokenType.MODULO },
+        { regex: /</, type: TokenType.LESS_THAN },
+        { regex: />/, type: TokenType.GREATER_THAN },
+        { regex: /!/, type: TokenType.NOT },
+        { regex: /_/, type: TokenType.UNDER },
+        { regex: /\.\.\./, type: TokenType.ELLIPSIS },
+        { regex: /\(/, type: TokenType.LPAREN },
+        { regex: /\)/, type: TokenType.RPAREN },
+        { regex: /\[/, type: TokenType.LBRACKET },
+        { regex: /\]/, type: TokenType.RBRACKET },
+        { regex: /\{/, type: TokenType.LBRACE },
+        { regex: /\}/, type: TokenType.RBRACE },
+        { regex: /,/, type: TokenType.COMMA },
+        { regex: /;/, type: TokenType.SEMICOLON },
+        { regex: /:/, type: TokenType.COLON },
+        { regex: /[α-ωΑ-Ω]/, type: TokenType.IDENTIFIER },
+        { regex: /[a-zA-Z_][a-zA-Z0-9_]*/, type: TokenType.IDENTIFIER }
+    ];
+
     private position = 0;
     private line = 1;
     private column = 1;
@@ -25,7 +59,7 @@ export class Lexer {
         this.tokens.push( {
             type: TokenType.EOF,
             value: '',
-            position: this.getPos(),
+            position: this.getPos()
         } );
 
         return this.tokens;
