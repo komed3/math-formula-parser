@@ -37,3 +37,9 @@ export enum TokenType {
     ELLIPSIS = 'ELLIPSIS',
     EOF = 'EOF'
 }
+
+export interface Position {
+    line: number;
+    column: number;
+    offset: number;
+}
