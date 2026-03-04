@@ -36,4 +36,19 @@ export enum TokenType {
     UNDER = 'UNDER',
     ELLIPSIS = 'ELLIPSIS',
     EOF = 'EOF'
-}
+};
+
+export const MATH_CONSTANTS: Record< string, number > = {
+    pi: Math.PI,
+    e: Math.E,
+    phi: ( 1 + Math.sqrt( 5 ) ) / 2,
+    golden: ( 1 + Math.sqrt( 5 ) ) / 2,
+    infinity: Infinity,
+    nan: NaN,
+    gamma: 0.5772156649,
+    sqrt2: Math.sqrt( 2 ),
+    sqrt3: Math.sqrt( 3 ),
+    sqrt5: Math.sqrt( 5 ),
+    ln2: Math.log( 2 ),
+    ln10: Math.log( 10 )
+};
