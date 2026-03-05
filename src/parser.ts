@@ -88,6 +88,38 @@ export class Parser {
         return expr;
     }
 
+    private multiplicative () : ASTNode {
+        let expr = this.exponential();
+
+        while ( this.match( TokenType.MULTIPLY, TokenType.DIVIDE, TokenType.MODULO ) ) {
+            expr = new AST.BinaryOpNode( this.prev().value, expr, this.exponential() );
+        }
+
+        while ( this.canStartPrimary() ) {
+            expr = new AST.BinaryOpNode( '*', expr, this.exponential() );
+        }
+
+        return expr;
+    }
+
+    private exponential () : ASTNode {
+        let expr = this.unary();
+
+        if ( this.match( TokenType.POWER ) ) {
+            expr = new AST.PowerNode( expr, this.exponential() );
+        }
+
+        return expr;
+    }
+
+    private unary () : ASTNode {
+        if ( this.match( TokenType.PLUS, TokenType.MINUS, TokenType.NOT ) ) {
+            return new AST.UnaryOpNode( this.prev().value, this.unary() );
+        }
+
+        return this.postfix();
+    }
+
     private prev () : Token {
         return this.tokens[ this.current - 1 ];
     }
