@@ -32,9 +32,7 @@ export class Parser {
         let expr = this.logicalAnd();
 
         while ( this.match( TokenType.OR ) ) {
-            const op = this.prev().value;
-            const right = this.logicalAnd();
-            expr = new AST.BinaryOpNode( op, expr, right );
+            expr = new AST.BinaryOpNode( this.prev().value, expr, this.logicalAnd() );
         }
 
         return expr;
@@ -44,9 +42,47 @@ export class Parser {
         let expr = this.equality();
 
         while ( this.match( TokenType.AND ) ) {
-            const op = this.prev().value;
-            const right = this.equality();
-            expr = new AST.BinaryOpNode( op, expr, right );
+            expr = new AST.BinaryOpNode( this.prev().value, expr, this.equality() );
+        }
+
+        return expr;
+    }
+
+    private equality () : ASTNode {
+        let expr = this.comparison();
+
+        while ( this.match( TokenType.EQUAL, TokenType.NOT_EQUAL ) ) {
+            expr = new AST.BinaryOpNode( this.prev().value, expr, this.comparison() );
+        }
+
+        return expr;
+    }
+
+    private comparison () : ASTNode {
+        let expr = this.ellipsis();
+
+        while ( this.match( TokenType.LESS_THAN, TokenType.GREATER_THAN, TokenType.LESS_EQUAL, TokenType.GREATER_EQUAL ) ) {
+            expr = new AST.BinaryOpNode( this.prev().value, expr, this.ellipsis() );
+        }
+
+        return expr;
+    }
+
+    private ellipsis () : ASTNode {
+        let expr = this.additive();
+
+        while ( this.match( TokenType.ELLIPSIS ) ) {
+            expr = new AST.EllipsisNode( expr, this.additive(), this.prev().position );
+        }
+
+        return expr;
+    }
+
+    private additive () : ASTNode {
+        let expr = this.multiplicative();
+
+        while ( this.match( TokenType.PLUS, TokenType.MINUS ) ) {
+            expr = new AST.BinaryOpNode( this.prev().value, expr, this.multiplicative() );
         }
 
         return expr;
