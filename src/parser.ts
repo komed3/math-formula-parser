@@ -120,6 +120,26 @@ export class Parser {
         return this.postfix();
     }
 
+    private postfix () : ASTNode {
+        let expr = this.primary();
+
+        while ( true ) {
+            if ( this.match( TokenType.NOT ) ) {
+                expr = new AST.FactorialNode( expr, this.prev().position );
+                continue;
+            }
+
+            if ( this.match( TokenType.UNDER ) ) {
+                expr = new AST.SubscriptNode( expr, this.primary(), this.prev().position );
+                continue;
+            }
+
+            break;
+        }
+
+        return expr;
+    }
+
     private prev () : Token {
         return this.tokens[ this.current - 1 ];
     }
