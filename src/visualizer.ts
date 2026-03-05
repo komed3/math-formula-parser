@@ -179,8 +179,8 @@ export class Visualizer {
         if ( node instanceof AST.EllipsisNode ) return [ node.left, node.right ];
         if ( node instanceof AST.IntegralNode ) {
             const children: ASTNode[] = [];
-            if ( node.lower) children.push( node.lower );
-            if ( node.upper) children.push( node.upper );
+            if ( node.lower ) children.push( node.lower );
+            if ( node.upper ) children.push( node.upper );
             children.push( node.expression );
             return children;
         }
