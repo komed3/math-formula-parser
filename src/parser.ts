@@ -28,4 +28,21 @@ export class Parser {
         return expr;
     }
 
+    private prev () : Token {
+        return this.tokens[ this.current - 1 ];
+    }
+
+    private peek () : Token {
+        return this.tokens[ this.current ];
+    }
+
+    private isAtEnd () : boolean {
+        return this.peek().type === TokenType.EOF;
+    }
+
+    private error ( msg: string ) : Error {
+        const t = this.peek();
+        return new Error( `${msg} at ${t.position.line}:${t.position.column}` );
+    }
+
 }
