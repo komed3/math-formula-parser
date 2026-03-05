@@ -268,6 +268,24 @@ export class Parser {
         return 'x';
     }
 
+    private match ( ...types: TokenType[] ) : boolean {
+        for ( const t of types ) if ( this.check( t ) ) {
+            this.advance();
+            return true;
+        }
+
+        return false;
+    }
+
+    private check ( type: TokenType ) : boolean {
+        return ! this.isAtEnd() && this.peek().type === type;
+    }
+
+    private advance () : Token {
+        if ( ! this.isAtEnd() ) this.current++;
+        return this.prev();
+    }
+
     private prev () : Token {
         return this.tokens[ this.current - 1 ];
     }
