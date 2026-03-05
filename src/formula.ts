@@ -102,6 +102,111 @@ export class MathFormulaParser {
         };
     }
 
+    private toStringWithPrecedence ( ast: ASTNode, parentPrecedence: number ) : string {
+        if ( ast instanceof AST.NumberNode ) return ast.value.toString();
+        if ( ast instanceof AST.VariableNode || ast instanceof AST.ConstantNode ) return ast.name;
+        if ( ast instanceof AST.BinaryOpNode ) {
+            const op = ast.operator;
+            const prec = this.getPrecedence( op );
+            const left = this.toStringWithPrecedence( ast.left, prec );
+            const right = this.toStringWithPrecedence( ast.right, prec + ( this.isRightAssociative( op ) ? 0 : 1 ) );
+            const result = `${left} ${op} ${right}`;
+            return prec < parentPrecedence ? `(${result})` : result;
+        }
+
+        if ( ast instanceof AST.UnaryOpNode ) {
+            return `${ast.operator}${ this.toStringWithPrecedence( ast.operand, 15 ) }`;
+        }
+
+        if ( ast instanceof AST.FunctionNode ) {
+            return `${ast.name}(${ ast.args.map( a => this.toString( a ) ).join( ', ' ) })`;
+        }
+
+        if ( ast instanceof AST.GroupNode ) {
+            return `(${ this.toString( ast.expression ) })`;
+        }
+
+        if ( ast instanceof AST.PowerNode ) {
+            const base = this.toStringWithPrecedence( ast.base, 13 );
+            const exp = this.toStringWithPrecedence( ast.exponent, 12 );
+            return `${base}^${exp}`;
+        }
+
+        if ( ast instanceof AST.SqrtNode ) {
+            const deg = ast.degree ? `[${ this.toString( ast.degree ) }]` : '';
+            return `sqrt${deg}(${ this.toString( ast.radicand ) })`;
+        }
+
+        if ( ast instanceof AST.SummationNode ) {
+            const lower = this.toString( ast.lower );
+            const upper = this.toString( ast.upper );
+            const expr = this.toString( ast.expression );
+            return `sum(${ast.variable}, ${lower}, ${upper}, ${expr})`;
+        }
+
+        if ( ast instanceof AST.ProductNode ) {
+            const lower = this.toString( ast.lower );
+            const upper = this.toString( ast.upper );
+            const expr = this.toString( ast.expression );
+            return `product(${ast.variable}, ${lower}, ${upper}, ${expr})`;
+        }
+
+        if ( ast instanceof AST.IntegralNode ) {
+            const bounds = ast.lower && ast.upper ? `[${ this.toString( ast.lower ) }, ${ this.toString( ast.upper ) }]` : '';
+            return `integral${bounds}(${ this.toString( ast.expression ) }, d${ast.variable})`;
+        }
+
+        if ( ast instanceof AST.DerivativeNode ) {
+            return `d/d${ast.variable}(${ this.toString( ast.expression ) })`;
+        }
+
+        if ( ast instanceof AST.PartialDerivativeNode ) {
+            return `∂/∂${ast.variable}(${ this.toString( ast.expression ) })`;
+        }
+
+        if ( ast instanceof AST.VectorNode ) {
+            return `[${ ast.elements.map( e => this.toString( e ) ).join( ', ' ) }]`;
+        }
+
+        if ( ast instanceof AST.MatrixNode ) {
+            const rows = ast.rows.map( r => `[${ r.map( e => this.toString( e ) ).join( ', ' ) }]` ).join( ', ' );
+            return `[${rows}]`;
+        }
+
+        if ( ast instanceof AST.ComplexNode ) {
+            return `(${ this.toString( ast.real ) } + ${ this.toString( ast.imaginary ) }i)`;
+        }
+
+        if ( ast instanceof AST.RangeNode ) {
+            const leftBracket = ast.lowerInclusive ? '[' : '(';
+            const rightBracket = ast.upperInclusive ? ']' : ')';
+            return `${leftBracket}${ this.toString( ast.lower ) }, ${ this.toString( ast.upper ) }${rightBracket}`;
+        }
+
+        if ( ast instanceof AST.IndexNode ) return `${ this.toString( ast.base ) }[${ this.toString( ast.index ) }]`;
+        if ( ast instanceof AST.SubscriptNode ) return `${ this.toString( ast.base ) }_${ this.toString( ast.subscript ) }`;
+        if ( ast instanceof AST.EllipsisNode ) return `${ this.toString( ast.left ) } ... ${ this.toString( ast.right ) }`;
+        if ( ast instanceof AST.FactorialNode ) return `${ this.toString( ast.operand ) }!`;
+
+        return '';
+    }
+
+    private getPrecedence ( op: string ) : number {
+        const precedences: Record< string, number > = {
+            '=': 1, '==': 2, '!=': 2,
+            '<': 3, '>': 3, '<=': 3, '>=': 3,
+            '||': 4, '&&': 5,
+            '+': 6, '-': 6,
+            '*': 7, '/': 7, '%': 7,
+            '^': 13,
+        };
+        return precedences[ op ] ?? 0;
+    }
+
+    private isRightAssociative ( op: string ) : boolean {
+        return op === '^' || op === '=';
+    }
+
     private children ( node: ASTNode ) : ASTNode[] {
         if ( node instanceof AST.BinaryOpNode ) return [ node.left, node.right ];
         if ( node instanceof AST.UnaryOpNode ) return [ node.operand ];
