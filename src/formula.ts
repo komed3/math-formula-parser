@@ -1,4 +1,4 @@
-import type { ASTNode } from './types';
+import type { ASTNode, VisualizationOptions } from './types';
 import * as AST from './ast';
 import { MATH_CONSTANTS, MATH_FUNCTIONS } from './constants';
 import { Lexer } from './lexer';
@@ -30,6 +30,72 @@ export class MathFormulaParser {
     public parse ( formula: string ) : ASTNode {
         const parser = new Parser( ( new Lexer( formula ) ).tokenize() );
         return parser.parse();
+    }
+
+    public visualize ( ast: ASTNode, options?: VisualizationOptions ) : string {
+        return MathFormulaParser.visualizer.visualize( ast, options );
+    }
+
+    public visualizeCompact ( ast: ASTNode ) : string {
+        return MathFormulaParser.visualizer.visualize( ast, { compact: true } );
+    }
+
+    public visualizeJSON ( ast: ASTNode, indent = 2 ) : string {
+        return JSON.stringify( ast, null, indent );
+    }
+
+    public getVariables ( ast: ASTNode ) : Set< string > {
+        const vars = new Set< string >();
+        this.traverse( ast, ( node: ASTNode ) => {
+            if ( node instanceof AST.VariableNode ) vars.add( node.name );
+        } );
+
+        return vars;
+    }
+
+    public getConstants ( ast: ASTNode ) : Set< string > {
+        const consts = new Set< string >();
+        this.traverse( ast, ( node: ASTNode ) => {
+            if ( node instanceof AST.ConstantNode ) consts.add( node.name );
+        } );
+
+        return consts;
+    }
+
+    public getFunctions ( ast: ASTNode ) : Set< string > {
+        const funcs = new Set< string >();
+        this.traverse( ast, ( node: ASTNode ) => {
+            if ( node instanceof AST.FunctionNode ) funcs.add( node.name );
+        } );
+
+        return funcs;
+    }
+
+    public getDepth ( ast: ASTNode ) : number {
+        if ( this.isLeaf( ast ) ) return 1;
+
+        const children = this.children( ast );
+        return 1 + ( children.length > 0 ? Math.max( ...children.map( c => this.getDepth( c ) ) ) : 0 );
+    }
+
+    public getNodeCount ( ast: ASTNode ) : number {
+        let count = 1;
+        for ( const child of this.children( ast ) ) count += this.getNodeCount( child );
+
+        return count;
+    }
+
+    public parseAndAnalyze ( formula: string ) {
+        const ast = this.parse( formula );
+        return {
+            ast,
+            variables: this.getVariables( ast ),
+            constants: this.getConstants( ast ),
+            functions: this.getFunctions( ast ),
+            depth: this.getDepth( ast ),
+            nodeCount: this.getNodeCount( ast ),
+            string: this.toString( ast )
+        };
     }
 
     private children ( node: ASTNode ) : ASTNode[] {
