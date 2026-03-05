@@ -263,6 +263,11 @@ export class Parser {
         return new AST.FunctionNode( name, args, pos );
     }
 
+    private extractVarName ( node: ASTNode ) : string {
+        if ( node instanceof AST.VariableNode || node instanceof AST.ConstantNode ) return node.name;
+        return 'x';
+    }
+
     private prev () : Token {
         return this.tokens[ this.current - 1 ];
     }
