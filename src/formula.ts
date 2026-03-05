@@ -19,6 +19,14 @@ export class MathFormulaParser {
         };
     }
 
+    public static availableConstants () {
+        return { ...MATH_CONSTANTS };
+    }
+
+    public static getAvailableFunctions () {
+        return Array.from( MATH_FUNCTIONS ).sort();
+    }
+
     public parse ( formula: string ) : ASTNode {
         const parser = new Parser( ( new Lexer( formula ) ).tokenize() );
         return parser.parse();
