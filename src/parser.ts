@@ -192,9 +192,8 @@ export class Parser {
         const elements: ASTNode[] = [];
 
         if ( ! this.check( TokenType.RBRACKET ) ) {
-            do {
-                elements.push( this.assignment() );
-            } while (
+            do { elements.push( this.assignment() ) }
+            while (
                 this.match( TokenType.COMMA ) && ! this.check( TokenType.RBRACKET ) &&
                 ! this.check( TokenType.RPAREN ) && ! this.check( TokenType.LPAREN )
             );
@@ -212,13 +211,56 @@ export class Parser {
         const elements: ASTNode[] = [];
 
         if ( ! this.check( TokenType.RBRACKET ) ) {
-            do {
-                elements.push( this.assignment() );
-            } while ( this.match( TokenType.COMMA ) && ! this.check( TokenType.RBRACKET ) );
+            do { elements.push( this.assignment() ) }
+            while ( this.match( TokenType.COMMA ) && ! this.check( TokenType.RBRACKET ) );
         }
 
         this.consume( TokenType.RBRACKET, 'Expected "]"' );
         return elements;
+    }
+
+    private finishFunction ( name: string, pos: any ) : ASTNode {
+        this.consume( TokenType.LPAREN, 'Expected "("' );
+        const args: ASTNode[] = [];
+
+        if ( ! this.check( TokenType.RPAREN ) ) {
+            do { args.push( this.assignment() ) }
+            while ( this.match( TokenType.COMMA ) );
+        }
+
+        this.consume( TokenType.RPAREN, 'Expected ")"' );
+
+        if ( name === 'sqrt' ) {
+            if ( args.length === 1 ) return new AST.SqrtNode( args[ 0 ], undefined, pos );
+            if ( args.length === 2 ) return new AST.SqrtNode( args[ 0 ], args[ 1 ], pos );
+        }
+
+        if ( name === 'integral' ) {
+            const varName = this.extractVarName( args[ 1 ] );
+            if ( args.length === 2 ) {
+                return new AST.IntegralNode( varName, args[ 0 ], undefined, undefined, pos );
+            } else if ( args.length === 4 ) {
+                return new AST.IntegralNode( varName, args[ 0 ], args[ 2 ], args[ 3 ], pos );
+            }
+        }
+
+        if ( ( name === 'sum' || name === 'Σ' ) && args.length === 4 ) {
+            return new AST.SummationNode( this.extractVarName( args[ 0 ] ), args[ 1 ], args[ 2 ], args[ 3 ], pos );
+        }
+
+        if ( ( name === 'product' || name === 'Π' ) && args.length === 4 ) {
+            return new AST.ProductNode( this.extractVarName( args[ 0 ] ), args[ 1 ], args[ 2 ], args[ 3 ], pos );
+        }
+
+        if ( ( name === 'derivative' || name === 'd' || name === 'dx' ) && args.length === 2 ) {
+            return new AST.DerivativeNode( this.extractVarName( args[ 1 ] ), args[ 0 ], pos );
+        }
+
+        if ( ( name === 'partial' || name === '∂' ) && args.length === 2 ) {
+            return new AST.PartialDerivativeNode( this.extractVarName( args[ 1 ] ), args[ 0 ], pos );
+        }
+
+        return new AST.FunctionNode( name, args, pos );
     }
 
     private prev () : Token {
