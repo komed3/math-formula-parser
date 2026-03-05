@@ -7,6 +7,11 @@ import { Visualizer } from './visualizer';
 
 export class MathFormulaParser {
 
+    private static readonly PRECEDENCES: Record< string, number > = {
+        '=': 1, '==': 2, '!=': 2, '<': 3, '>': 3, '<=': 3, '>=': 3, '||': 4,
+        '&&': 5, '+': 6, '-': 6, '*': 7, '/': 7, '%': 7, '^': 13
+    };
+
     private static readonly visualizer = new Visualizer();
 
     public static instructionSet () {
@@ -192,15 +197,7 @@ export class MathFormulaParser {
     }
 
     private getPrecedence ( op: string ) : number {
-        const precedences: Record< string, number > = {
-            '=': 1, '==': 2, '!=': 2,
-            '<': 3, '>': 3, '<=': 3, '>=': 3,
-            '||': 4, '&&': 5,
-            '+': 6, '-': 6,
-            '*': 7, '/': 7, '%': 7,
-            '^': 13,
-        };
-        return precedences[ op ] ?? 0;
+        return MathFormulaParser.PRECEDENCES[ op ] ?? 0;
     }
 
     private isRightAssociative ( op: string ) : boolean {
