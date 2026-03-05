@@ -1,5 +1,6 @@
 import type { ASTNode, Token } from './types';
 import * as AST from './ast';
+import { MATH_CONSTANTS } from './constants';
 import { TokenType } from './types';
 
 export class Parser {
@@ -138,6 +139,38 @@ export class Parser {
         }
 
         return expr;
+    }
+
+    private primary () : ASTNode {
+        if ( this.match( TokenType.NUMBER ) ) {
+            return new AST.NumberNode( Number( this.prev().value ), this.prev().position );
+        }
+
+        if ( this.match( TokenType.IDENTIFIER ) ) {
+            const name = this.prev().value;
+            const pos = this.prev().position;
+
+            if ( name in MATH_CONSTANTS ) {
+                return new AST.ConstantNode( name, MATH_CONSTANTS[ name ], pos );
+            }
+
+            if ( this.check( TokenType.LPAREN ) ) {
+                return this.finishFunction( name, pos );
+            }
+
+            return new AST.VariableNode( name, pos );
+        }
+
+        if ( this.match( TokenType.LPAREN ) ) {
+            this.consume( TokenType.RPAREN, 'Expected ")"' );
+            return new AST.GroupNode( this.assignment(), this.prev().position );
+        }
+
+        if ( this.match( TokenType.LBRACKET ) ) {
+            return this.parseVector();
+        }
+
+        throw this.error( 'Expected expression' );
     }
 
     private prev () : Token {
