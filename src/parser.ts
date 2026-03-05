@@ -173,6 +173,54 @@ export class Parser {
         throw this.error( 'Expected expression' );
     }
 
+    private parseVector () : ASTNode {
+        const pos = this.prev().position;
+
+        if ( this.check( TokenType.LBRACKET ) ) {
+            const rows: ASTNode[][] = [];
+
+            do {
+                this.consume( TokenType.LBRACKET, 'Expected "["' );
+                const row = this.parseVectorElements();
+                rows.push( row );
+            } while ( this.match( TokenType.COMMA ) && this.check( TokenType.LBRACKET ) );
+
+            this.consume( TokenType.RBRACKET, 'Expected "]"' );
+            return new AST.MatrixNode( rows, pos );
+        }
+
+        const elements: ASTNode[] = [];
+
+        if ( ! this.check( TokenType.RBRACKET ) ) {
+            do {
+                elements.push( this.assignment() );
+            } while (
+                this.match( TokenType.COMMA ) && ! this.check( TokenType.RBRACKET ) &&
+                ! this.check( TokenType.RPAREN ) && ! this.check( TokenType.LPAREN )
+            );
+        }
+
+        if ( elements.length === 2 && ( this.check( TokenType.RPAREN ) || this.check( TokenType.LPAREN ) ) ) {
+            return new AST.RangeNode( elements[ 0 ], elements[ 1 ], true, false, pos );
+        }
+
+        this.consume( TokenType.RBRACKET, 'Expected "]"' );
+        return new AST.VectorNode( elements, pos );
+    }
+
+    private parseVectorElements () : ASTNode[] {
+        const elements: ASTNode[] = [];
+
+        if ( ! this.check( TokenType.RBRACKET ) ) {
+            do {
+                elements.push( this.assignment() );
+            } while ( this.match( TokenType.COMMA ) && ! this.check( TokenType.RBRACKET ) );
+        }
+
+        this.consume( TokenType.RBRACKET, 'Expected "]"' );
+        return elements;
+    }
+
     private prev () : Token {
         return this.tokens[ this.current - 1 ];
     }
