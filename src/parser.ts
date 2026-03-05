@@ -298,6 +298,21 @@ export class Parser {
         return this.peek().type === TokenType.EOF;
     }
 
+    private consume ( type: TokenType, msg: string ) : Token {
+        if ( this.check( type ) ) return this.advance();
+        throw this.error( msg );
+    }
+
+    private canStartPrimary () : boolean {
+        const t = this.peek().type;
+        return (
+            t === TokenType.NUMBER ||
+            t === TokenType.IDENTIFIER ||
+            t === TokenType.LPAREN ||
+            t === TokenType.LBRACKET
+        );
+    }
+
     private error ( msg: string ) : Error {
         const t = this.peek();
         return new Error( `${msg} at ${t.position.line}:${t.position.column}` );
