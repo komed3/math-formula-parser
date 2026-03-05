@@ -32,6 +32,10 @@ export class MathFormulaParser {
         return parser.parse();
     }
 
+    public toString ( ast: ASTNode ) : string {
+        return this.toStringWithPrecedence( ast, -1 );
+    }
+
     public visualize ( ast: ASTNode, options?: VisualizationOptions ) : string {
         return MathFormulaParser.visualizer.visualize( ast, options );
     }
