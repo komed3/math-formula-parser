@@ -28,6 +28,30 @@ export class Parser {
         return expr;
     }
 
+    private logicalOr () : ASTNode {
+        let expr = this.logicalAnd();
+
+        while ( this.match( TokenType.OR ) ) {
+            const op = this.prev().value;
+            const right = this.logicalAnd();
+            expr = new AST.BinaryOpNode( op, expr, right );
+        }
+
+        return expr;
+    }
+
+    private logicalAnd () : ASTNode {
+        let expr = this.equality();
+
+        while ( this.match( TokenType.AND ) ) {
+            const op = this.prev().value;
+            const right = this.equality();
+            expr = new AST.BinaryOpNode( op, expr, right );
+        }
+
+        return expr;
+    }
+
     private prev () : Token {
         return this.tokens[ this.current - 1 ];
     }
