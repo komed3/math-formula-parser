@@ -115,14 +115,14 @@ for ( const expr of expressions ) {
     try {
         const ast = parser.parse( expr );
 
-        console.log( 'String:', ast.toString() );
-        console.log( 'Variables:', [ ...ast.getVariables() ] );
-        console.log( 'Constants:', [ ...ast.getConstants() ] );
-        console.log( 'Functions:', [ ...ast.getFunctions() ] );
-        console.log( 'Depth:', ast.getDepth() );
-        console.log( 'Nodes:', ast.getNodeCount() );
+        console.log( 'String:', parser.toString( ast ) );
+        console.log( 'Variables:', [ ...parser.getVariables( ast ) ] );
+        console.log( 'Constants:', [ ...parser.getConstants( ast ) ] );
+        console.log( 'Functions:', [ ...parser.getFunctions( ast ) ] );
+        console.log( 'Depth:', parser.getDepth( ast ) );
+        console.log( 'Nodes:', parser.getNodeCount( ast ) );
         console.log( '' );
-        console.log( ast.visualize() );
+        console.log( parser.visualize( ast ) );
     } catch ( e ) {
         console.log( 'ERROR: ', ( e as unknown as Error ).message )
     }
