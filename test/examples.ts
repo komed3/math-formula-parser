@@ -1,6 +1,4 @@
-import { MathFormulaParser } from '../src';
-
-const parser = new MathFormulaParser();
+import { Formula } from '../src';
 
 const expressions = [
     'sin(pi/4)^2 + cos(pi/4)^2',
@@ -133,16 +131,16 @@ for ( const expr of expressions ) {
     console.log( 'Input:', expr );
 
     try {
-        const ast = parser.parse( expr );
+        const formula = new Formula( expr );
 
-        console.log( 'String:', parser.toString( ast ) );
-        console.log( 'Variables:', [ ...parser.getVariables( ast ) ] );
-        console.log( 'Constants:', [ ...parser.getConstants( ast ) ] );
-        console.log( 'Functions:', [ ...parser.getFunctions( ast ) ] );
-        console.log( 'Depth:', parser.getDepth( ast ) );
-        console.log( 'Nodes:', parser.getNodeCount( ast ) );
+        console.log( 'String:', formula.toString() );
+        console.log( 'Variables:', [ ...formula.getVariables() ] );
+        console.log( 'Constants:', [ ...formula.getConstants() ] );
+        console.log( 'Functions:', [ ...formula.getFunctions() ] );
+        console.log( 'Depth:', formula.getDepth() );
+        console.log( 'Nodes:', formula.getNodeCount() );
         console.log( '' );
-        console.log( parser.visualize( ast ) );
+        console.log( formula.visualize() );
     } catch ( e ) {
         console.log( 'ERROR: ', ( e as unknown as Error ).message )
     }
