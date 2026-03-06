@@ -108,3 +108,20 @@ const expressions = [
     '(sqrt5 - 1)/2',
     '(x+y+z)^3 - 3*(x+y)*(y+z)*(z+x)',
 ];
+
+for ( const expr of expressions ) {
+
+    const ast = parser.parse( expr );
+
+    console.log( 'Input:', expr );
+    console.log( 'String:', ast.toString() );
+    console.log( 'Variables:', [ ...ast.getVariables() ] );
+    console.log( 'Constants:', [ ...ast.getConstants() ] );
+    console.log( 'Functions:', [ ...ast.getFunctions() ] );
+    console.log( 'Depth:', ast.getDepth() );
+    console.log( 'Nodes:', ast.getNodeCount() );
+
+    console.log( '' );
+    console.log( ast.visualize() );
+    console.log( '--------------------------------------------------' );
+}
