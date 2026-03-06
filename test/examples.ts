@@ -107,6 +107,26 @@ const expressions = [
     '(sqrt5 + 1)/2',
     '(sqrt5 - 1)/2',
     '(x+y+z)^3 - 3*(x+y)*(y+z)*(z+x)',
+    'exp(sin(cos(tan(arcsin(sqrt(abs(log(exp(x^2 + y^2)))))))))',
+    'sqrt(abs(exp(log(abs(sin(pi*x) + cos(e*y)))^2 - tanh(phi*z))))',
+    'ln(exp(sqrt(sin(cos(tan(x^2 + y^2 + z^2)))))) + log10(abs(phi^3 - sqrt5))',
+    'sin(cos(tan(exp(log(sqrt(abs(x^2 - y^2 + z^2)))))))^2 + cos(sin(tan(exp(log(sqrt(abs(y^2 - z^2 + x^2)))))))^2',
+    'exp(exp(exp(log(log(log(abs(x*y*z + sin(pi*x)*cos(e*y))))))))',
+    'sqrt(sqrt(sqrt(abs(exp(log(abs(sin(cos(tan(x+y+z))))))))))',
+    'integral(x,0,pi,sin(x)*exp(cos(x))*sqrt(abs(log(1+x^2))))',
+    'sum(i,1,n,exp(sin(cos(tan(i)))) * sqrt(abs(log(i+1))))',
+    'product(k,1,n,(1 + sin(pi*k/n)^2 + cos(e*k/n)^2)^(1/2))',
+    'limit((sin(x) - x*cos(x)) / (x^3), x, 0)',
+    'derivative(exp(sin(cos(tan(x^2 + sqrt(abs(log(x+1))))))), x)',
+    'partial(exp(x*y + sin(pi*x*y) + cos(e*x*y)), x)',
+    'sqrt(abs(det(matrix(sin(x),cos(y);tan(z),exp(x*y))) + trace(matrix(x,y;z,phi))))',
+    'norm(cross(vector(sin(x),cos(y),tan(z)),vector(exp(x),log(y+1),sqrt(z+1))))',
+    'dot(vector(sin(x^2),cos(y^2),tan(z^2)), vector(exp(x),log(y+1),sqrt(z+1)))',
+    'hypot(exp(sin(x)), sqrt(abs(log(cos(y)+2))), tanh(phi*z))',
+    '((sin(x)+cos(y)+tan(z))^2 + (exp(x)+log(y+1)+sqrt(z+1))^2)^(1/2)',
+    '((x>y)&&(sin(x)^2 + cos(x)^2 == 1)) || ((y>z)&&(exp(log(z+1)) >= z))',
+    'sum(i,1,n,sum(j,1,n,exp(sin(i*j)) * sqrt(abs(log(i+j+1)))))',
+    'integral(x,0,1,integral(y,0,1,exp(sin(pi*x*y))*sqrt(abs(log(x+y+1)))))'
 ];
 
 for ( const expr of expressions ) {
