@@ -112,7 +112,7 @@ export class Visualizer {
         } else if ( node instanceof AST.UnaryOpNode ) {
             return `${node.operator}${ this.get( node.operand ) }`;
         } else if ( node instanceof AST.FunctionNode ) {
-            return `${node.name}( ${ node.args.map( a => this.get( a ) ).join( ', ' ) })`;
+            return `${node.name}( ${ node.args.map( ( a: ASTNode ) => this.get( a ) ).join( ', ' ) })`;
         } else if ( node instanceof AST.GroupNode ) {
             return `(${ this.get( node.expression ) })`;
         } else if ( node instanceof AST.SqrtNode ) {
@@ -138,9 +138,9 @@ export class Visualizer {
         } else if ( node instanceof AST.PartialDerivativeNode ) {
             return `∂/∂${node.variable}(${ this.get( node.expression ) })`;
         } else if ( node instanceof AST.VectorNode ) {
-            return `[${ node.elements.map( e => this.get( e ) ).join( ', ' ) }]`;
+            return `[${ node.elements.map( ( e: ASTNode ) => this.get( e ) ).join( ', ' ) }]`;
         } else if ( node instanceof AST.MatrixNode ) {
-            const rows = node.rows.map( r => `[${ r.map( e => this.get( e ) ).join( ', ' ) }]` ).join( ', ' );
+            const rows = node.rows.map( ( r: ASTNode[] ) => `[${ r.map( ( e: ASTNode ) => this.get( e ) ).join( ', ' ) }]` ).join( ', ' );
             return `[${rows}]`;
         } else if ( node instanceof AST.ComplexNode ) {
             return `(${ this.get( node.real ) } + ${ this.get( node.imaginary ) }i)`;

@@ -162,8 +162,9 @@ export class Parser {
         }
 
         if ( this.match( TokenType.LPAREN ) ) {
+            const expr = this.assignment();
             this.consume( TokenType.RPAREN, 'Expected ")"' );
-            return new AST.GroupNode( this.assignment(), this.prev().position );
+            return new AST.GroupNode( expr, this.prev().position );
         }
 
         if ( this.match( TokenType.LBRACKET ) ) {
@@ -221,8 +222,12 @@ export class Parser {
 
     private finishFunction ( name: string, pos: any ) : ASTNode {
         this.consume( TokenType.LPAREN, 'Expected "("' );
-        const args: ASTNode[] = [];
 
+        if ( name === 'matrix' ) {
+            return this.parseMatrixFunction( pos );
+        }
+
+        const args: ASTNode[] = [];
         if ( ! this.check( TokenType.RPAREN ) ) {
             do { args.push( this.assignment() ) }
             while ( this.match( TokenType.COMMA ) );
@@ -261,6 +266,33 @@ export class Parser {
         }
 
         return new AST.FunctionNode( name, args, pos );
+    }
+
+    private parseMatrixFunction ( pos: any ) : ASTNode {
+        const rows: ASTNode[][] = [];
+        let currentRow: ASTNode[] = [];
+
+        if ( ! this.check( TokenType.RPAREN ) ) {
+            while ( true ) {
+                currentRow.push( this.assignment() );
+
+                if ( this.match( TokenType.COMMA ) ) {
+                    continue;
+                }
+
+                if ( this.match( TokenType.SEMICOLON ) ) {
+                    rows.push( currentRow );
+                    currentRow = [];
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        rows.push( currentRow );
+        this.consume( TokenType.RPAREN, 'Expected ")"' );
+        return new AST.MatrixNode( rows, pos );
     }
 
     private extractVarName ( node: ASTNode ) : string {
