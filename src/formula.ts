@@ -5,7 +5,7 @@ import { Lexer } from './lexer';
 import { Parser } from './parser';
 import { Visualizer } from './visualizer';
 
-export class MathFormulaParser {
+export class Formula {
 
     private static readonly PRECEDENCES: Record< string, number > = {
         '=': 1, '==': 2, '!=': 2, '<': 3, '>': 3, '<=': 3, '>=': 3, '||': 4,
@@ -13,6 +13,13 @@ export class MathFormulaParser {
     };
 
     private static readonly visualizer = new Visualizer();
+
+    private _formula?: string;
+    private _ast?: ASTNode;
+
+    public constructor ( formula?: string ) {
+        if ( formula ) this.parse( formula );
+    }
 
     public static instructionSet () {
         return {
@@ -33,63 +40,77 @@ export class MathFormulaParser {
     }
 
     public parse ( formula: string ) : ASTNode {
+        this._formula = formula;
         const parser = new Parser( ( new Lexer( formula ) ).tokenize() );
-        return parser.parse();
+        this._ast = parser.parse();
+        return this._ast;
     }
 
-    public toString ( ast: ASTNode ) : string {
-        return this.toStringWithPrecedence( ast, -1 );
+    public get ast () : ASTNode {
+        if ( ! this._ast ) throw new Error( 'No formula has been parsed yet.' );
+        return this._ast;
     }
 
-    public visualize ( ast: ASTNode, options?: VisualizationOptions ) : string {
-        return MathFormulaParser.visualizer.visualize( ast, options );
+    public get formula () : string {
+        if ( ! this._formula ) throw new Error( 'No formula has been parsed yet.' );
+        return this._formula;
     }
 
-    public visualizeCompact ( ast: ASTNode ) : string {
-        return MathFormulaParser.visualizer.visualize( ast, { compact: true } );
+    public toString ( ast?: ASTNode ) : string {
+        return this.toStringWithPrecedence( ast ?? this.ast, -1 );
     }
 
-    public visualizeJSON ( ast: ASTNode, indent = 2 ) : string {
-        return JSON.stringify( ast, null, indent );
+    public visualize ( ast?: ASTNode, options?: VisualizationOptions ) : string {
+        return Formula.visualizer.visualize( ast ?? this.ast, options );
     }
 
-    public getVariables ( ast: ASTNode ) : Set< string > {
+    public visualizeCompact ( ast?: ASTNode ) : string {
+        return Formula.visualizer.visualize( ast ?? this.ast, { compact: true } );
+    }
+
+    public visualizeJSON ( ast?: ASTNode, indent = 2 ) : string {
+        return JSON.stringify( ast ?? this.ast, null, indent );
+    }
+
+    public getVariables ( ast?: ASTNode ) : Set< string > {
         const vars = new Set< string >();
-        this.traverse( ast, ( node: ASTNode ) => {
+        this.traverse( ast ?? this.ast, ( node: ASTNode ) => {
             if ( node instanceof AST.VariableNode ) vars.add( node.name );
         } );
 
         return vars;
     }
 
-    public getConstants ( ast: ASTNode ) : Set< string > {
+    public getConstants ( ast?: ASTNode ) : Set< string > {
         const consts = new Set< string >();
-        this.traverse( ast, ( node: ASTNode ) => {
+        this.traverse( ast ?? this.ast, ( node: ASTNode ) => {
             if ( node instanceof AST.ConstantNode ) consts.add( node.name );
         } );
 
         return consts;
     }
 
-    public getFunctions ( ast: ASTNode ) : Set< string > {
+    public getFunctions ( ast?: ASTNode ) : Set< string > {
         const funcs = new Set< string >();
-        this.traverse( ast, ( node: ASTNode ) => {
+        this.traverse( ast ?? this.ast, ( node: ASTNode ) => {
             if ( node instanceof AST.FunctionNode ) funcs.add( node.name );
         } );
 
         return funcs;
     }
 
-    public getDepth ( ast: ASTNode ) : number {
-        if ( this.isLeaf( ast ) ) return 1;
+    public getDepth ( ast?: ASTNode ) : number {
+        const node = ast ?? this.ast;
+        if ( this.isLeaf( node ) ) return 1;
 
-        const children = this.children( ast );
+        const children = this.children( node );
         return 1 + ( children.length > 0 ? Math.max( ...children.map( c => this.getDepth( c ) ) ) : 0 );
     }
 
-    public getNodeCount ( ast: ASTNode ) : number {
+    public getNodeCount ( ast?: ASTNode ) : number {
+        const node = ast ?? this.ast;
         let count = 1;
-        for ( const child of this.children( ast ) ) count += this.getNodeCount( child );
+        for ( const child of this.children( node ) ) count += this.getNodeCount( child );
 
         return count;
     }
@@ -124,7 +145,7 @@ export class MathFormulaParser {
         }
 
         if ( ast instanceof AST.FunctionNode ) {
-            return `${ast.name}(${ ast.args.map( a => this.toString( a ) ).join( ', ' ) })`;
+            return `${ast.name}(${ ast.args.map( ( a: ASTNode ) => this.toString( a ) ).join( ', ' ) })`;
         }
 
         if ( ast instanceof AST.GroupNode ) {
@@ -170,11 +191,11 @@ export class MathFormulaParser {
         }
 
         if ( ast instanceof AST.VectorNode ) {
-            return `[${ ast.elements.map( e => this.toString( e ) ).join( ', ' ) }]`;
+            return `[${ ast.elements.map( ( e: ASTNode ) => this.toString( e ) ).join( ', ' ) }]`;
         }
 
         if ( ast instanceof AST.MatrixNode ) {
-            const rows = ast.rows.map( r => `[${ r.map( e => this.toString( e ) ).join( ', ' ) }]` ).join( ', ' );
+            const rows = ast.rows.map( ( r: ASTNode[] ) => `[${ r.map( ( e: ASTNode ) => this.toString( e ) ).join( ', ' ) }]` ).join( ', ' );
             return `[${rows}]`;
         }
 
@@ -197,7 +218,7 @@ export class MathFormulaParser {
     }
 
     private getPrecedence ( op: string ) : number {
-        return MathFormulaParser.PRECEDENCES[ op ] ?? 0;
+        return Formula.PRECEDENCES[ op ] ?? 0;
     }
 
     private isRightAssociative ( op: string ) : boolean {

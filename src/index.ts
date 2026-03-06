@@ -1,3 +1,3 @@
 export { MATH_CONSTANTS, MATH_FUNCTIONS } from './constants';
-export { MathFormulaParser } from './formula';
+export { Formula } from './formula';
 export { Visualizer } from './visualizer';
