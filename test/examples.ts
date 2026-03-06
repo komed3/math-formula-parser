@@ -110,18 +110,22 @@ const expressions = [
 ];
 
 for ( const expr of expressions ) {
-
-    const ast = parser.parse( expr );
-
     console.log( 'Input:', expr );
-    console.log( 'String:', ast.toString() );
-    console.log( 'Variables:', [ ...ast.getVariables() ] );
-    console.log( 'Constants:', [ ...ast.getConstants() ] );
-    console.log( 'Functions:', [ ...ast.getFunctions() ] );
-    console.log( 'Depth:', ast.getDepth() );
-    console.log( 'Nodes:', ast.getNodeCount() );
 
-    console.log( '' );
-    console.log( ast.visualize() );
+    try {
+        const ast = parser.parse( expr );
+
+        console.log( 'String:', ast.toString() );
+        console.log( 'Variables:', [ ...ast.getVariables() ] );
+        console.log( 'Constants:', [ ...ast.getConstants() ] );
+        console.log( 'Functions:', [ ...ast.getFunctions() ] );
+        console.log( 'Depth:', ast.getDepth() );
+        console.log( 'Nodes:', ast.getNodeCount() );
+        console.log( '' );
+        console.log( ast.visualize() );
+    } catch ( e ) {
+        console.log( 'ERROR: ', ( e as unknown as Error ).message )
+    }
+
     console.log( '--------------------------------------------------' );
 }
