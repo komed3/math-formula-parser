@@ -1,6 +1,7 @@
 import type { OperatorSpec } from './types';
 import { TokenType } from './types';
 
+
 export const OPERATORS: OperatorSpec[] = [
     { symbol: '=', token: TokenType.EQUAL, precedence: 1, associativity: 'right', label: 'assign', description: 'assignment/comparison' },
     { symbol: '==', token: TokenType.EQUAL, precedence: 2, associativity: 'left', label: 'equal', description: 'equality' },
