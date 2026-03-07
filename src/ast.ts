@@ -1,5 +1,5 @@
 import type { Position, VisualizationOptions } from './types';
-import { NodeFormatter } from './definitions';
+import { NodeFormatter } from './formatter';
 
 export class ASTNode {
 
