@@ -1,5 +1,5 @@
 import type { ASTNode } from './ast';
-import type { ChildrenGetter, FunctionBuilder, Labeler } from './types';
+import type { ChildrenGetter, FunctionBuilder, Labeler, Stringifier } from './types';
 import { OPERATOR_BY_SYMBOL } from './definitions';
 
 
@@ -72,12 +72,74 @@ export class NodeFormatter {
         vector: ( n ) => `vector[${ ( n.props.elements ?? [] ).length }]`,
         matrix: ( n ) => `matrix[${ ( n.props.rows ?? [] ).length }x${ ( n.props.rows?.[ 0 ]?.length ?? 0 ) }]`,
         complex: () => 'complex',
-        range: ( n ) => `range: ${ n.props.lowerInclusive ? '[' : '(' }${
-            NodeFormatter.toString( n.props.lower ) }..${ NodeFormatter.toString( n.props.upper )
-        }${ n.props.upperInclusive ? ']' : ')' }`,
+        range: ( n ) => {
+            const li = n.props.lowerInclusive ? '[' : '(';
+            const ui = n.props.upperInclusive ? ']' : ')';
+            const lower = NodeFormatter.toString( n.props.lower );
+            const upper = NodeFormatter.toString( n.props.upper );
+            return `range: ${li}${lower}..${upper}${ui}`;
+        },
         index: ( n ) => `index: [${ NodeFormatter.toString( n.props.index ) }]`,
         ellipsis: () => 'ellipsis',
         factorial: () => 'factorial'
+    };
+
+    private static readonly STRINGIFIERS: Record< string, Stringifier > = {
+        number: ( n ) => String( n.props.value ),
+        identifier: ( n ) => n.props.name,
+        constant: ( n ) => n.props.name,
+        binary: ( n, parentPrecedence ) => {
+            const op = n.props.operator;
+            const prec = this.getOperatorPrecedence( op );
+            const wrap = ( s: string ) => ( prec < parentPrecedence ? `(${s})` : s );
+            const left = this.toString( n.props.left, prec );
+            const right = this.toString( n.props.right, prec + ( this.isRightAssociative( op ) ? 0 : 1 ) );
+            return wrap( `${left} ${op} ${right}` );
+        },
+        unary: ( n ) => `${n.props.operator}${ this.toString( n.props.operand, 15 ) }`,
+        function: ( n ) => `${n.props.name}(${ ( n.props.args ?? [] ).map( ( a: ASTNode ) => NodeFormatter.toString( a ) ).join( ', ' ) })`,
+        group: ( n ) => `(${ NodeFormatter.toString( n.props.expression ) })`,
+        power: ( n ) => `${ NodeFormatter.toString( n.props.base, 13 ) }^${ NodeFormatter.toString( n.props.exponent, 12 ) }`,
+        sqrt: ( n ) => {
+            const degree = n.props.degree ? `[${ NodeFormatter.toString( n.props.degree ) }]` : '';
+            return `sqrt${degree}(${ NodeFormatter.toString( n.props.radicand ) })`;
+        },
+        summation: ( n ) => {
+            const lower = NodeFormatter.toString( n.props.lower );
+            const upper = NodeFormatter.toString( n.props.upper );
+            const expr = NodeFormatter.toString( n.props.expression );
+            return `sum(${n.props.variable}, ${lower}, ${upper}, ${expr})`;
+        },
+        product: ( n ) => {
+            const lower = NodeFormatter.toString( n.props.lower );
+            const upper = NodeFormatter.toString( n.props.upper );
+            const expr = NodeFormatter.toString( n.props.expression );
+            return `product(${n.props.variable}, ${lower}, ${upper}, ${expr})`;
+        },
+        integral: ( n ) => {
+            const bounds = n.props.lower && n.props.upper
+                ? `[${ NodeFormatter.toString( n.props.lower ) }, ${ NodeFormatter.toString( n.props.upper ) }]`
+                : '';
+            return `integral${bounds}(${ NodeFormatter.toString( n.props.expression ) }, d${n.props.variable})`;
+        },
+        derivative: ( n ) => `d/d${n.props.variable}(${ NodeFormatter.toString( n.props.expression ) })`,
+        partial: ( n ) => `∂/∂${n.props.variable}(${ NodeFormatter.toString( n.props.expression ) })`,
+        vector: ( n ) => `[${ ( n.props.elements ?? [] ).map( ( e: ASTNode ) => NodeFormatter.toString( e ) ).join( ', ' ) }]`,
+        matrix: ( n ) => `[${ ( n.props.rows ?? [] ).map( ( r: ASTNode[] ) => `[${
+            r.map( ( e ) => NodeFormatter.toString( e ) ).join( ', ' )
+        }]` ).join( ', ' ) }]`,
+        complex: ( n ) => `(${ NodeFormatter.toString( n.props.real ) } + ${ NodeFormatter.toString( n.props.imaginary ) }i)`,
+        range: ( n ) => {
+            const li = n.props.lowerInclusive ? '[' : '(';
+            const ui = n.props.upperInclusive ? ']' : ')';
+            const lower = NodeFormatter.toString( n.props.lower );
+            const upper = NodeFormatter.toString( n.props.upper );
+            return `${li}${lower}, ${upper}${ui}`;
+        },
+        index: ( n ) => `${ NodeFormatter.toString( n.props.base ) }[${ NodeFormatter.toString( n.props.index ) }]`,
+        subscript: ( n ) => `${ NodeFormatter.toString( n.props.base ) }_${ NodeFormatter.toString( n.props.subscript ) }`,
+        ellipsis: ( n ) => `${ NodeFormatter.toString( n.props.left ) } ... ${ NodeFormatter.toString( n.props.right ) }`,
+        factorial: ( n ) => `${ NodeFormatter.toString( n.props.operand ) }!`
     };
 
 }
