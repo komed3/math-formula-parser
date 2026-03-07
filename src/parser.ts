@@ -11,7 +11,7 @@ export class Parser {
 
     constructor ( private readonly tokens: Token[] ) {}
 
-    public parse() : ASTNode {
+    public parse () : ASTNode {
         const root = this.parseExpression();
         if ( ! this.isAtEnd() ) throw this.error( 'Unexpected token after expression' );
 
@@ -43,47 +43,46 @@ export class Parser {
         return left;
     }
 
-  private parseUnary(): ASTNode {
-    if (this.match(TokenType.PLUS, TokenType.MINUS, TokenType.NOT)) {
-      const op = this.prev().value;
-      const operand = this.parseUnary();
-      return new ASTNode('unary', { operator: op, operand }, this.prev().position);
+    private parseUnary () : ASTNode {
+        if ( this.match( TokenType.PLUS, TokenType.MINUS, TokenType.NOT ) ) {
+            const op = this.prev().value;
+            const operand = this.parseUnary();
+
+            return new ASTNode( 'unary', { operator: op, operand }, this.prev().position );
+        }
+
+        const expr = this.parsePrimary();
+        return this.parsePostfix( expr );
     }
 
-    const expr = this.parsePrimary();
-    return this.parsePostfix(expr);
-  }
+    private parsePrimary () : ASTNode {
+        if ( this.match( TokenType.NUMBER ) ) {
+            const tok = this.prev();
+            return new ASTNode( 'number', { value: Number( tok.value ) }, tok.position );
+        }
 
-  private parsePrimary(): ASTNode {
-    if (this.match(TokenType.NUMBER)) {
-      const tok = this.prev();
-      return new ASTNode('number', { value: Number(tok.value) }, tok.position);
+        if ( this.match( TokenType.IDENTIFIER ) ) {
+            const tok = this.prev();
+            const name = tok.value;
+
+            if ( this.check( TokenType.LPAREN ) ) {
+                return this.parseFunctionCall( name, tok.position );
+            }
+
+            if ( name in CONSTANTS ) return new ASTNode( 'constant', { name, value: CONSTANTS[ name ] }, tok.position );
+            return new ASTNode( 'identifier', { name }, tok.position );
+        }
+
+        if ( this.match( TokenType.LPAREN ) ) {
+            const expr = this.parseExpression();
+            this.consume( TokenType.RPAREN, 'Expected )' );
+            return new ASTNode( 'group', { expression: expr }, this.prev().position );
+        }
+
+        if ( this.match( TokenType.LBRACKET ) ) return this.parseVectorOrRange();
+
+        throw this.error( 'Expected expression' );
     }
-
-    if (this.match(TokenType.IDENTIFIER)) {
-      const tok = this.prev();
-      const name = tok.value;
-
-      if (this.check(TokenType.LPAREN)) {
-        return this.parseFunctionCall(name, tok.position);
-      }
-
-      if (name in CONSTANTS) return new ASTNode('constant', { name, value: CONSTANTS[name] }, tok.position);
-      return new ASTNode('identifier', { name }, tok.position);
-    }
-
-    if (this.match(TokenType.LPAREN)) {
-      const expr = this.parseExpression();
-      this.consume(TokenType.RPAREN, 'Expected )');
-      return new ASTNode('group', { expression: expr }, this.prev().position);
-    }
-
-    if (this.match(TokenType.LBRACKET)) {
-      return this.parseVectorOrRange();
-    }
-
-    throw this.error('Expected expression');
-  }
 
   private parsePostfix(node: ASTNode): ASTNode {
     while (true) {
