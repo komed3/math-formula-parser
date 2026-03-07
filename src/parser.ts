@@ -189,44 +189,44 @@ export class Parser {
         return IMPLICIT_MULTIPLICATION_TOKENS.has( token.type );
     }
 
-  private match(...types: TokenType[]): boolean {
-    for (const t of types) {
-      if (this.check(t)) {
-        this.advance();
-        return true;
-      }
+    private match ( ...types: TokenType[] ) : boolean {
+        for ( const t of types ) if ( this.check( t ) ) {
+            this.advance();
+            return true;
+        }
+
+        return false;
     }
-    return false;
-  }
 
-  private check(type: TokenType): boolean {
-    return !this.isAtEnd() && this.peek().type === type;
-  }
+    private check ( type: TokenType ) : boolean {
+        return ! this.isAtEnd() && this.peek().type === type;
+    }
 
-  private advance(): Token {
-    if (!this.isAtEnd()) this.current++;
-    return this.prev();
-  }
+    private advance () : Token {
+        if ( ! this.isAtEnd() ) this.current++;
+        return this.prev();
+    }
 
-  private prev(): Token {
-    return this.tokens[this.current - 1];
-  }
+    private prev () : Token {
+        return this.tokens[ this.current - 1 ];
+    }
 
-  private peek(): Token {
-    return this.tokens[this.current];
-  }
+    private peek () : Token {
+        return this.tokens[ this.current ];
+    }
 
-  private isAtEnd(): boolean {
-    return this.peek().type === TokenType.EOF;
-  }
+    private isAtEnd () : boolean {
+        return this.peek().type === TokenType.EOF;
+    }
 
-  private consume(type: TokenType, msg: string): Token {
-    if (this.check(type)) return this.advance();
-    throw this.error(msg);
-  }
+    private consume ( type: TokenType, msg: string ) : Token {
+        if ( this.check( type ) ) return this.advance();
+        throw this.error( msg );
+    }
 
-  private error(msg: string): Error {
-    const t = this.peek();
-    return new Error(`${msg} at ${t.position.line}:${t.position.column}`);
-  }
+    private error ( msg: string ) : Error {
+        const t = this.peek();
+        return new Error( `${msg} at ${t.position.line}:${t.position.column}` );
+    }
+
 }
