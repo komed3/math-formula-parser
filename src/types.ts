@@ -28,6 +28,19 @@ export enum TokenType {
     EOF = 'EOF'
 }
 
+export type Associativity = 'left' | 'right';
+
+export interface OperatorSpec {
+    symbol: string;
+    token: TokenType;
+    precedence: number;
+    associativity: Associativity;
+    isPrefix?: boolean;
+    isPostfix?: boolean;
+    description?: string;
+    label?: string;
+}
+
 export interface Position {
     line: number;
     column: number;
