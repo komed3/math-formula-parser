@@ -1,5 +1,4 @@
-import type { ASTNode } from './ast';
-import type { OperatorSpec, Position, VisualizationOptions } from './types';
+import type { OperatorSpec } from './types';
 import { TokenType } from './types';
 
 export const OPERATORS: OperatorSpec[] = [
@@ -63,31 +62,4 @@ export const FUNCTION_ALIASES: Record< string, string > = {
     'd': 'derivative',
     'dx': 'derivative',
     '∂': 'partial'
-};
-
-export type NodeFactory = ( kind: string, props: Record< string, any >, position?: Position ) => ASTNode;
-export type FunctionBuilder = ( create: NodeFactory, args: ASTNode[], position?: Position ) => ASTNode;
-
-export function extractVarName ( node: ASTNode ) : string {
-    return ( node.kind === 'identifier' || node.kind === 'constant' ) ? node.props.name : 'x';
-}
-
-export const FUNCTION_BUILDERS: Record< string, FunctionBuilder > = {
-    sqrt: ( create, args, position ) => {
-        if ( args.length === 2 ) return create( 'sqrt', { radicand: args[ 1 ], degree: args[ 0 ] }, position );
-        return create( 'sqrt', { radicand: args[ 0 ] }, position );
-    },
-    integral: ( create, args, position ) => {
-        const variable = extractVarName( args[ 0 ] );
-        if ( args.length === 2 ) return create( 'integral', { variable, expression: args[ 1 ] }, position );
-        return create( 'integral', { variable, lower: args[ 0 ], upper: args[ 2 ], expression: args[ 3 ] }, position );
-    },
-    sum: ( create, args, position ) => create( 'summation', {
-        variable: extractVarName( args[ 0 ] ), lower: args[ 1 ], upper: args[ 2 ], expression: args[ 3 ]
-    }, position ),
-    product: ( create, args, position ) => create( 'product', {
-        variable: extractVarName( args[ 0 ] ), lower: args[ 1 ], upper: args[ 2 ], expression: args[ 3 ]
-    }, position ),
-    derivative: ( create, args, position ) => create( 'derivative', { variable: extractVarName( args[ 1 ] ), expression: args[ 0 ] }, position ),
-    partial: ( create, args, position ) => create( 'partial', { variable: extractVarName( args[ 1 ] ), expression: args[ 0 ] }, position )
 };
