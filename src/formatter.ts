@@ -141,6 +141,7 @@ export class NodeFormatter {
         factorial: ( n ) => `${ NodeFormatter.toString( n.props.operand ) }!`
     };
 
+
     public static getOperatorPrecedence ( op: string ) : number {
         return OPERATOR_BY_SYMBOL.get( op )?.precedence ?? 0;
     }

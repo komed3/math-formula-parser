@@ -11,13 +11,6 @@ export class Parser {
 
     constructor ( private readonly tokens: Token[] ) {}
 
-    public parse () : ASTNode {
-        const root = this.parseExpression();
-        if ( ! this.isAtEnd() ) throw this.error( 'Unexpected token after expression' );
-
-        return root;
-    }
-
     private parseExpression ( minPrecedence = 0 ) : ASTNode {
         let left = this.parseUnary();
 
@@ -227,6 +220,14 @@ export class Parser {
     private error ( msg: string ) : Error {
         const t = this.peek();
         return new Error( `${msg} at ${t.position.line}:${t.position.column}` );
+    }
+
+
+    public parse () : ASTNode {
+        const root = this.parseExpression();
+        if ( ! this.isAtEnd() ) throw this.error( 'Unexpected token after expression' );
+
+        return root;
     }
 
 }

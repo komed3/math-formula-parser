@@ -42,25 +42,6 @@ export class Lexer {
 
     constructor ( private readonly input: string ) {}
 
-    public tokenize () : Token[] {
-        this.tokens = [];
-        this.position = 0;
-        this.line = 1;
-        this.column = 1;
-
-        while ( this.position < this.input.length ) if ( ! this.scanToken() ) {
-            throw new Error( `Lexer error at ${this.line}:${this.column}` );
-        }
-
-        this.tokens.push( {
-            type: TokenType.EOF,
-            value: '',
-            position: this.getPos()
-        } );
-
-        return this.tokens;
-    }
-
     private scanToken () : boolean {
         for ( const pattern of Lexer.PATTERN ) {
             const regex = new RegExp( `^${pattern.regex.source}` );
@@ -92,6 +73,26 @@ export class Lexer {
 
     private getPos () : Position {
         return { line: this.line, column: this.column, offset: this.position };
+    }
+
+
+    public tokenize () : Token[] {
+        this.tokens = [];
+        this.position = 0;
+        this.line = 1;
+        this.column = 1;
+
+        while ( this.position < this.input.length ) if ( ! this.scanToken() ) {
+            throw new Error( `Lexer error at ${this.line}:${this.column}` );
+        }
+
+        this.tokens.push( {
+            type: TokenType.EOF,
+            value: '',
+            position: this.getPos()
+        } );
+
+        return this.tokens;
     }
 
 }
