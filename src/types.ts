@@ -43,6 +43,10 @@ export interface OperatorSpec {
     label?: string;
 }
 
+export type NodeFactory = ( kind: string, props: Record< string, any >, position?: Position ) => ASTNode;
+
+export type FunctionBuilder = ( create: NodeFactory, args: ASTNode[], position?: Position ) => ASTNode;
+
 export type ChildrenGetter = ( node: ASTNode ) => ASTNode[];
 
 export type Labeler = ( node: ASTNode, options: VisualizationOptions ) => string;
