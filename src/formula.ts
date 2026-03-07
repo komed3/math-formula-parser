@@ -15,22 +15,21 @@ export class Formula {
         if ( formula ) this.parse( formula );
     }
 
-    public static instructionSet () {
-        return {
-          version: '0.1.0',
-          constants: Object.keys( CONSTANTS ),
-          functions: Array.from( FUNCTIONS ).sort(),
-          operators: OPERATORS.map( ( op ) => op.symbol )
-        };
+    private collect ( ast: ASTNode, mapper: ( node: ASTNode ) => string | undefined ) : Set< string > {
+        const result = new Set< string >();
+        this.visit( ast, ( node ) => {
+            const value = mapper( node );
+            if ( value ) result.add( value );
+        } );
+
+        return result;
     }
 
-    public static availableConstants () {
-        return { ...CONSTANTS };
+    private visit ( ast: ASTNode, fn: ( node: ASTNode, depth: number ) => void, depth = 1 ) : void {
+        fn( ast, depth );
+        for ( const child of ast.children() ) this.visit( child, fn, depth + 1 );
     }
 
-    public static availableFunctions () {
-        return Array.from( FUNCTIONS ).sort();
-    }
 
     public parse ( formula: string ) : ASTNode {
         this._formula = formula;
@@ -76,48 +75,50 @@ export class Formula {
         return this.collect( ast ?? this.ast, n => n.kind === 'function' ? n.props.name : undefined );
     }
 
-    public getDepth(ast?: ASTNode): number {
-      const root = ast ?? this.ast;
-      let maxDepth = 0;
-      this.visit(root, (_, depth) => {
-        if (depth > maxDepth) maxDepth = depth;
-      });
-      return maxDepth;
+    public getDepth ( ast?: ASTNode ) : number {
+        const root = ast ?? this.ast;
+        let maxDepth = 0;
+
+        this.visit( root, ( _, depth ) => { if ( depth > maxDepth ) maxDepth = depth } );
+        return maxDepth;
     }
 
-    public getNodeCount(ast?: ASTNode): number {
-      let count = 0;
-      this.visit(ast ?? this.ast, () => count++);
-      return count;
+    public getNodeCount ( ast?: ASTNode ) : number {
+        let count = 0;
+        this.visit( ast ?? this.ast, () => count++ );
+        return count;
     }
 
-    public parseAndAnalyze(formula: string) {
-      const ast = this.parse(formula);
-      return {
-        ast,
-        variables: this.getVariables(ast),
-        constants: this.getConstants(ast),
-        functions: this.getFunctions(ast),
-        depth: this.getDepth(ast),
-        nodeCount: this.getNodeCount(ast),
-        string: this.toString(ast)
-      };
+    public parseAndAnalyze ( formula: string ) {
+        const ast = this.parse( formula );
+
+        return {
+            ast,
+            variables: this.getVariables( ast ),
+            constants: this.getConstants( ast ),
+            functions: this.getFunctions( ast ),
+            depth: this.getDepth( ast ),
+            nodeCount: this.getNodeCount( ast ),
+            string: this.toString( ast )
+        };
     }
 
-    private collect(ast: ASTNode, mapper: (node: ASTNode) => string | undefined): Set<string> {
-      const result = new Set<string>();
-      this.visit(ast, (node) => {
-        const value = mapper(node);
-        if (value) result.add(value);
-      });
-      return result;
+
+    public static instructionSet () {
+        return {
+          version: '0.1.0',
+          constants: Object.keys( CONSTANTS ),
+          functions: Array.from( FUNCTIONS ).sort(),
+          operators: OPERATORS.map( ( op ) => op.symbol )
+        };
     }
 
-    private visit(ast: ASTNode, fn: (node: ASTNode, depth: number) => void, depth = 1): void {
-      fn(ast, depth);
-      for (const child of ast.children()) {
-        this.visit(child, fn, depth + 1);
-      }
+    public static availableConstants () {
+        return { ...CONSTANTS };
+    }
+
+    public static availableFunctions () {
+        return Array.from( FUNCTIONS ).sort();
     }
 
 }
