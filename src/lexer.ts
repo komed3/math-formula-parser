@@ -1,6 +1,7 @@
 import type { Token, TokenPattern, Position } from './types';
 import { TokenType } from './types';
 
+
 export class Lexer {
 
     private static readonly PATTERN: TokenPattern[] = [
@@ -28,11 +29,8 @@ export class Lexer {
         { regex: /\)/, type: TokenType.RPAREN },
         { regex: /\[/, type: TokenType.LBRACKET },
         { regex: /\]/, type: TokenType.RBRACKET },
-        { regex: /\{/, type: TokenType.LBRACE },
-        { regex: /\}/, type: TokenType.RBRACE },
         { regex: /,/, type: TokenType.COMMA },
         { regex: /;/, type: TokenType.SEMICOLON },
-        { regex: /:/, type: TokenType.COLON },
         { regex: /[α-ωΑ-Ω]/, type: TokenType.IDENTIFIER },
         { regex: /[a-zA-Z_][a-zA-Z0-9_]*/, type: TokenType.IDENTIFIER }
     ];
@@ -50,10 +48,8 @@ export class Lexer {
         this.line = 1;
         this.column = 1;
 
-        while ( this.position < this.input.length ) {
-            if ( ! this.scanToken() ) {
-                throw new Error( `Lexer error at ${this.line}:${this.column}` );
-            }
+        while ( this.position < this.input.length ) if ( ! this.scanToken() ) {
+            throw new Error( `Lexer error at ${this.line}:${this.column}` );
         }
 
         this.tokens.push( {
@@ -87,12 +83,8 @@ export class Lexer {
 
     private advance ( text: string ) : void {
         for ( const char of text ) {
-            if ( char === '\n' ) {
-                this.line++;
-                this.column = 1;
-            } else {
-                this.column++;
-            }
+            if ( char === '\n' ) { this.line++; this.column = 1 }
+            else this.column++;
         }
 
         this.position += text.length;
