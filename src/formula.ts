@@ -32,48 +32,48 @@ export class Formula {
         return Array.from( FUNCTIONS ).sort();
     }
 
-    public parse(formula: string): ASTNode {
-      this._formula = formula;
-      this._ast = new Parser(new Lexer(formula).tokenize()).parse();
-      return this._ast;
+    public parse ( formula: string ) : ASTNode {
+        this._formula = formula;
+        this._ast = new Parser( new Lexer( formula ).tokenize() ).parse();
+        return this._ast;
     }
 
     public get ast(): ASTNode {
-      if (!this._ast) throw new Error('No formula has been parsed yet.');
-      return this._ast;
+        if ( ! this._ast ) throw new Error( 'No formula has been parsed yet.' );
+        return this._ast;
     }
 
-    public get formula(): string {
-      if (!this._formula) throw new Error('No formula has been parsed yet.');
-      return this._formula;
+    public get formula () : string {
+        if ( ! this._formula ) throw new Error( 'No formula has been parsed yet.' );
+        return this._formula;
     }
 
-    public toString(ast?: ASTNode): string {
-      return (ast ?? this.ast).toString();
+    public toString ( ast?: ASTNode ) : string {
+        return ( ast ?? this.ast ).toString();
     }
 
-    public visualize(ast?: ASTNode, options?: VisualizationOptions): string {
-      return new Visualizer().visualize(ast ?? this.ast, options);
+    public visualize ( ast?: ASTNode, options?: VisualizationOptions ) : string {
+        return new Visualizer().visualize( ast ?? this.ast, options );
     }
 
-    public visualizeCompact(ast?: ASTNode): string {
-      return new Visualizer().visualize(ast ?? this.ast, { compact: true });
+    public visualizeCompact ( ast?: ASTNode ) : string {
+        return new Visualizer().visualize( ast ?? this.ast, { compact: true } );
     }
 
-    public visualizeJSON(ast?: ASTNode, indent = 2): string {
-      return JSON.stringify(ast ?? this.ast, null, indent);
+    public visualizeJSON ( ast?: ASTNode, indent = 2 ) : string {
+        return JSON.stringify( ast ?? this.ast, null, indent );
     }
 
-    public getVariables(ast?: ASTNode): Set<string> {
-      return this.collect(ast ?? this.ast, (node) => (node.kind === 'identifier' ? node.props.name : undefined));
+    public getVariables ( ast?: ASTNode ) : Set< string > {
+        return this.collect( ast ?? this.ast, n => n.kind === 'identifier' ? n.props.name : undefined );
     }
 
-    public getConstants(ast?: ASTNode): Set<string> {
-      return this.collect(ast ?? this.ast, (node) => (node.kind === 'constant' ? node.props.name : undefined));
+    public getConstants ( ast?: ASTNode ) : Set< string > {
+        return this.collect( ast ?? this.ast, n => n.kind === 'constant' ? n.props.name : undefined );
     }
 
-    public getFunctions(ast?: ASTNode): Set<string> {
-      return this.collect(ast ?? this.ast, (node) => (node.kind === 'function' ? node.props.name : undefined));
+    public getFunctions ( ast?: ASTNode ) : Set< string > {
+        return this.collect( ast ?? this.ast, n => n.kind === 'function' ? n.props.name : undefined );
     }
 
     public getDepth(ast?: ASTNode): number {
