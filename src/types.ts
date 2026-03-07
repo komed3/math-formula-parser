@@ -1,3 +1,5 @@
+import type { ASTNode } from './ast';
+
 export enum TokenType {
     WHITESPACE = 'WHITESPACE',
     NUMBER = 'NUMBER',
@@ -40,6 +42,12 @@ export interface OperatorSpec {
     description?: string;
     label?: string;
 }
+
+export type ChildrenGetter = ( node: ASTNode ) => ASTNode[];
+
+export type Labeler = ( node: ASTNode, options: VisualizationOptions ) => string;
+
+export type Stringifier = ( node: ASTNode, parentPrecedence: number ) => string;
 
 export interface Position {
     line: number;

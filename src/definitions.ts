@@ -88,10 +88,6 @@ export const FUNCTION_BUILDERS: Record< string, FunctionBuilder > = {
     product: ( create, args, position ) => create( 'product', {
         variable: extractVarName( args[ 0 ] ), lower: args[ 1 ], upper: args[ 2 ], expression: args[ 3 ]
     }, position ),
-    derivative: ( create, args, position ) => create( 'derivative', {
-        variable: extractVarName( args[ 1 ] ), expression: args[ 0 ]
-    }, position ),
-    partial: ( create, args, position ) => create( 'partial', {
-        variable: extractVarName( args[ 1 ] ), expression: args[ 0 ]
-    }, position )
+    derivative: ( create, args, position ) => create( 'derivative', { variable: extractVarName( args[ 1 ] ), expression: args[ 0 ] }, position ),
+    partial: ( create, args, position ) => create( 'partial', { variable: extractVarName( args[ 1 ] ), expression: args[ 0 ] }, position )
 };
