@@ -17,50 +17,38 @@ export enum TokenType {
     AND = 'AND',
     OR = 'OR',
     NOT = 'NOT',
+    UNDER = 'UNDER',
     LPAREN = 'LPAREN',
     RPAREN = 'RPAREN',
     LBRACKET = 'LBRACKET',
     RBRACKET = 'RBRACKET',
-    LBRACE = 'LBRACE',
-    RBRACE = 'RBRACE',
     COMMA = 'COMMA',
     SEMICOLON = 'SEMICOLON',
-    COLON = 'COLON',
-    INTEGRAL = 'INTEGRAL',
-    SUMMATION = 'SUMMATION',
-    PRODUCT = 'PRODUCT',
-    SQRT = 'SQRT',
-    DERIVATIVE = 'DERIVATIVE',
-    PARTIAL = 'PARTIAL',
-    FACTORIAL = 'FACTORIAL',
-    UNDER = 'UNDER',
     ELLIPSIS = 'ELLIPSIS',
     EOF = 'EOF'
-};
-
-export interface Token {
-    type: TokenType;
-    value: string;
-    position: Position;
-};
-
-export interface TokenPattern {
-    regex: RegExp;
-    type: TokenType;
-    skip?: boolean;
-};
+}
 
 export interface Position {
     line: number;
     column: number;
     offset: number;
-};
+}
 
-export type ASTNode = any;
+export interface Token {
+    type: TokenType;
+    value: string;
+    position: Position;
+}
+
+export interface TokenPattern {
+    regex: RegExp;
+    type: TokenType;
+    skip?: boolean;
+}
 
 export interface VisualizationOptions {
     showTypes?: boolean;
     showPositions?: boolean;
     indentSize?: number;
     compact?: boolean;
-};
+}
