@@ -1,5 +1,5 @@
 import type { ASTNode } from './ast';
-import type { ChildrenGetter, FunctionBuilder, Labeler, Stringifier } from './types';
+import type { ChildrenGetter, FunctionBuilder, Labeler, Stringifier, VisualizationOptions } from './types';
 import { OPERATOR_BY_SYMBOL } from './definitions';
 
 
@@ -91,10 +91,9 @@ export class NodeFormatter {
         binary: ( n, parentPrecedence ) => {
             const op = n.props.operator;
             const prec = this.getOperatorPrecedence( op );
-            const wrap = ( s: string ) => ( prec < parentPrecedence ? `(${s})` : s );
             const left = this.toString( n.props.left, prec );
             const right = this.toString( n.props.right, prec + ( this.isRightAssociative( op ) ? 0 : 1 ) );
-            return wrap( `${left} ${op} ${right}` );
+            return prec < parentPrecedence ? `(${left} ${op} ${right})` : `${left} ${op} ${right}`;
         },
         unary: ( n ) => `${n.props.operator}${ this.toString( n.props.operand, 15 ) }`,
         function: ( n ) => `${n.props.name}(${ ( n.props.args ?? [] ).map( ( a: ASTNode ) => NodeFormatter.toString( a ) ).join( ', ' ) })`,
@@ -141,5 +140,30 @@ export class NodeFormatter {
         ellipsis: ( n ) => `${ NodeFormatter.toString( n.props.left ) } ... ${ NodeFormatter.toString( n.props.right ) }`,
         factorial: ( n ) => `${ NodeFormatter.toString( n.props.operand ) }!`
     };
+
+    public static getOperatorPrecedence ( op: string ) : number {
+        return OPERATOR_BY_SYMBOL.get( op )?.precedence ?? 0;
+    }
+
+    public static isRightAssociative ( op: string ) : boolean {
+        return OPERATOR_BY_SYMBOL.get( op )?.associativity === 'right';
+    }
+
+    public static getChildren ( node: ASTNode ) : ASTNode[] {
+        return this.CHILDREN[ node.kind ]?.( node ) ?? [];
+    }
+
+    public static getLabel ( node: ASTNode, options: VisualizationOptions = {} ) : string {
+        let label = this.LABELS[ node.kind ]?.( node, options ) ?? node.kind;
+
+        if ( options.showTypes ) label = `[${node.kind}] ${label}`;
+        if ( options.showPositions && node.position ) label += ` @${node.position.line}:${node.position.column}`;
+
+        return label;
+    }
+
+    public static toString ( node: ASTNode, parentPrecedence = 0 ) : string {
+        return this.STRINGIFIERS[ node.kind ]?.( node, parentPrecedence ) ?? '';
+    }
 
 }
