@@ -1,4 +1,4 @@
-import type { Token } from './types';
+import type { OperatorSpec, Token } from './types';
 import { ASTNode } from './ast';
 import { CONSTANTS, FUNCTION_ALIASES, IMPLICIT_MULTIPLICATION_TOKENS, OPERATOR_BY_SYMBOL, OPERATOR_BY_TOKEN } from './definitions';
 import { FUNCTION_BUILDERS } from './formatter';
@@ -84,106 +84,110 @@ export class Parser {
         throw this.error( 'Expected expression' );
     }
 
-  private parsePostfix(node: ASTNode): ASTNode {
-    while (true) {
-      if (this.match(TokenType.NOT)) {
-        node = new ASTNode('factorial', { operand: node }, this.prev().position);
-        continue;
-      }
+    private parsePostfix ( node: ASTNode ) : ASTNode {
+        while ( true ) {
+            if ( this.match( TokenType.NOT ) ) {
+                node = new ASTNode( 'factorial', { operand: node }, this.prev().position );
+                continue;
+            }
 
-      if (this.match(TokenType.ELLIPSIS)) {
-        const right = this.parseExpression();
-        node = new ASTNode('ellipsis', { left: node, right }, this.prev().position);
-        continue;
-      }
+            if ( this.match( TokenType.ELLIPSIS ) ) {
+                const right = this.parseExpression();
+                node = new ASTNode( 'ellipsis', { left: node, right }, this.prev().position );
+                continue;
+            }
 
-      if (this.match(TokenType.LBRACKET)) {
-        const index = this.parseExpression();
-        this.consume(TokenType.RBRACKET, 'Expected ]');
-        node = new ASTNode('index', { base: node, index }, this.prev().position);
-        continue;
-      }
+            if ( this.match( TokenType.LBRACKET ) ) {
+                const index = this.parseExpression();
+                this.consume( TokenType.RBRACKET, 'Expected ]' );
+                node = new ASTNode( 'index', { base: node, index }, this.prev().position );
+                continue;
+            }
 
-      if (this.match(TokenType.UNDER)) {
-        const subscript = this.parseExpression();
-        node = new ASTNode('subscript', { base: node, subscript }, this.prev().position);
-        continue;
-      }
+            if ( this.match( TokenType.UNDER ) ) {
+                const subscript = this.parseExpression();
+                node = new ASTNode( 'subscript', { base: node, subscript }, this.prev().position );
+                continue;
+            }
 
-      break;
+            break;
+        }
+
+        return node;
     }
 
-    return node;
-  }
+    private parseFunctionCall ( name: string, position: Token[ 'position' ] ) : ASTNode {
+        this.consume( TokenType.LPAREN, 'Expected (' );
 
-  private parseFunctionCall(name: string, position: Token['position']): ASTNode {
-    this.consume(TokenType.LPAREN, 'Expected (');
+        if ( name === 'matrix' ) {
+            const matrix = this.parseMatrix();
+            this.consume( TokenType.RPAREN, 'Expected )' );
+            return matrix;
+        }
 
-    if (name === 'matrix') {
-      const matrix = this.parseMatrix();
-      this.consume(TokenType.RPAREN, 'Expected )');
-      return matrix;
+        const args: ASTNode[] = [];
+
+        if ( ! this.check( TokenType.RPAREN ) ) {
+            do { args.push( this.parseExpression() ) }
+            while ( this.match( TokenType.COMMA ) );
+        }
+
+        this.consume( TokenType.RPAREN, 'Expected )' );
+
+        const canonical = FUNCTION_ALIASES[ name ] ?? name;
+        const createNode = ( kind: string, props: Record< string, any >, pos?: Token[ 'position' ] ) => new ASTNode( kind, props, pos );
+        const builder = FUNCTION_BUILDERS[ canonical ];
+
+        return builder ? builder( createNode, args, position ) : createNode( 'function', { name: canonical, args }, position );
     }
 
-    const args: ASTNode[] = [];
-    if (!this.check(TokenType.RPAREN)) {
-      do {
-        args.push(this.parseExpression());
-      } while (this.match(TokenType.COMMA));
+    private parseMatrix () : ASTNode {
+        const rows: ASTNode[][] = [];
+        let row: ASTNode[] = [];
+
+        while ( ! this.check( TokenType.RPAREN ) && ! this.isAtEnd() ) {
+            row.push( this.parseExpression() );
+
+            if ( this.match( TokenType.COMMA ) ) continue;
+            if ( this.match( TokenType.SEMICOLON ) ) {
+                rows.push( row ); row = [];
+                continue;
+            }
+
+            break;
+        }
+
+        rows.push( row );
+
+        return new ASTNode( 'matrix', { rows }, this.peek().position );
     }
 
-    this.consume(TokenType.RPAREN, 'Expected )');
+    private parseVectorOrRange () : ASTNode {
+        const start = this.prev().position;
+        const items: ASTNode[] = [];
 
-    const canonical = FUNCTION_ALIASES[name] ?? name;
-    const createNode = (kind: string, props: Record<string, any>, pos?: Token['position']) => new ASTNode(kind, props, pos);
-    const builder = FUNCTION_BUILDERS[canonical];
-    return builder ? builder(createNode, args, position) : createNode('function', { name: canonical, args }, position);
-  }
+        while ( ! this.check( TokenType.RBRACKET ) && ! this.isAtEnd() ) {
+            items.push( this.parseExpression() );
+            if ( ! this.match( TokenType.COMMA ) ) break;
+        }
 
-  private parseMatrix(): ASTNode {
-    const rows: ASTNode[][] = [];
-    let row: ASTNode[] = [];
+        this.consume( TokenType.RBRACKET, 'Expected ]' );
 
-    while (!this.check(TokenType.RPAREN) && !this.isAtEnd()) {
-      row.push(this.parseExpression());
-      if (this.match(TokenType.COMMA)) continue;
-      if (this.match(TokenType.SEMICOLON)) {
-        rows.push(row);
-        row = [];
-        continue;
-      }
-      break;
+        if ( items.length === 2 ) return new ASTNode( 'range', {
+          lower: items[ 0 ], upper: items[ 1 ], lowerInclusive: true, upperInclusive: true
+        }, start );
+
+        return new ASTNode( 'vector', { elements: items }, start );
     }
 
-    rows.push(row);
-    return new ASTNode('matrix', { rows }, this.peek().position);
-  }
-
-  private parseVectorOrRange(): ASTNode {
-    const start = this.prev().position;
-    const items: ASTNode[] = [];
-
-    while (!this.check(TokenType.RBRACKET) && !this.isAtEnd()) {
-      items.push(this.parseExpression());
-      if (!this.match(TokenType.COMMA)) break;
+    private getOperator ( token: Token ) : OperatorSpec | undefined {
+        if ( token.type === TokenType.EOF ) return undefined;
+        return OPERATOR_BY_TOKEN.get( token.type ) ?? OPERATOR_BY_SYMBOL.get( token.value );
     }
 
-    this.consume(TokenType.RBRACKET, 'Expected ]');
-    if (items.length === 2) {
-      return new ASTNode('range', { lower: items[0], upper: items[1], lowerInclusive: true, upperInclusive: true }, start);
+    private canImplicitMultiply ( token: Token ) : boolean {
+        return IMPLICIT_MULTIPLICATION_TOKENS.has( token.type );
     }
-
-    return new ASTNode('vector', { elements: items }, start);
-  }
-
-  private getOperator(token: Token) {
-    if (token.type === TokenType.EOF) return undefined;
-    return OPERATOR_BY_TOKEN.get(token.type) ?? OPERATOR_BY_SYMBOL.get(token.value);
-  }
-
-  private canImplicitMultiply(token: Token): boolean {
-    return IMPLICIT_MULTIPLICATION_TOKENS.has(token.type);
-  }
 
   private match(...types: TokenType[]): boolean {
     for (const t of types) {
