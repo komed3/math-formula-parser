@@ -1,12 +1,31 @@
+/**
+ * NodeFormatter provides utilities for formatting and manipulating AST nodes.
+ * 
+ * It includes logic for retrieving child nodes, generating labels for visualization,
+ * and converting AST nodes back into string representations of mathematical formulas.
+ * 
+ * @author Paul Köhler
+ * @license MIT
+ */
+
 import type { ASTNode } from './ast';
 import type { ChildrenGetter, FunctionBuilder, Labeler, Stringifier, VisualizationOptions } from './types';
 import { OPERATOR_BY_SYMBOL } from './definitions';
 
 
+/**
+ * Helper function to extract a variable name from an identifier or constant node.
+ * 
+ * @param {ASTNode} node - The AST node to extract the name from.
+ * @returns {string} The name of the variable or 'x' as a default.
+ */
 export function extractVarName ( node: ASTNode ) : string {
     return ( node.kind === 'identifier' || node.kind === 'constant' ) ? node.props.name : 'x';
 }
 
+/**
+ * Registry of custom builders for specific mathematical functions to handle complex argument structures.
+ */
 export const FUNCTION_BUILDERS: Record< string, FunctionBuilder > = {
     sqrt: ( create, args, position ) => {
         if ( args.length === 2 ) return create( 'sqrt', { radicand: args[ 1 ], degree: args[ 0 ] }, position );
@@ -28,8 +47,12 @@ export const FUNCTION_BUILDERS: Record< string, FunctionBuilder > = {
 };
 
 
+/**
+ * The NodeFormatter class centralizes the logic for AST node traversal, labeling, and string conversion.
+ */
 export class NodeFormatter {
 
+    /** Strategy map for extracting children from different types of nodes. */
     private static readonly CHILDREN: Record< string, ChildrenGetter > = {
         binary: ( n ) => [ n.props.left, n.props.right ],
         unary: ( n ) => [ n.props.operand ],
@@ -52,6 +75,7 @@ export class NodeFormatter {
         factorial: ( n ) => [ n.props.operand ]
     };
 
+    /** Strategy map for generating localized labels for AST nodes. */
     private static readonly LABELS: Record< string, Labeler > = {
         number: ( n ) => `number: ${n.props.value}`,
         identifier: ( n ) => `variable: ${n.props.name}`,
@@ -84,6 +108,7 @@ export class NodeFormatter {
         factorial: () => 'factorial'
     };
 
+    /** Strategy map for converting AST nodes to mathematical formula strings. */
     private static readonly STRINGIFIERS: Record< string, Stringifier > = {
         number: ( n ) => String( n.props.value ),
         identifier: ( n ) => n.props.name,
@@ -142,18 +167,43 @@ export class NodeFormatter {
     };
 
 
+    /**
+     * Retrieves the precedence level for a given operator symbol.
+     * 
+     * @param {string} op - The operator symbol.
+     * @returns {number} The precedence level (higher means higher precedence).
+     */
     public static getOperatorPrecedence ( op: string ) : number {
         return OPERATOR_BY_SYMBOL.get( op )?.precedence ?? 0;
     }
 
+    /**
+     * Checks if a given operator is right-associative.
+     * 
+     * @param {string} op - The operator symbol.
+     * @returns {boolean} True if the operator is right-associative, false otherwise.
+     */
     public static isRightAssociative ( op: string ) : boolean {
         return OPERATOR_BY_SYMBOL.get( op )?.associativity === 'right';
     }
 
+    /**
+     * Returns the child nodes of a given AST node.
+     * 
+     * @param {ASTNode} node - The parent AST node.
+     * @returns {ASTNode[]} An array of child nodes.
+     */
     public static getChildren ( node: ASTNode ) : ASTNode[] {
         return this.CHILDREN[ node.kind ]?.( node ) ?? [];
     }
 
+    /**
+     * Generates a human-readable label for an AST node, used for visualizations.
+     * 
+     * @param {ASTNode} node - The AST node to label.
+     * @param {VisualizationOptions} [options={}] - Formatting options.
+     * @returns {string} The generated label.
+     */
     public static getLabel ( node: ASTNode, options: VisualizationOptions = {} ) : string {
         let label = this.LABELS[ node.kind ]?.( node, options ) ?? node.kind;
 
@@ -163,6 +213,13 @@ export class NodeFormatter {
         return label;
     }
 
+    /**
+     * Converts an AST node and its sub-tree to a formatted mathematical formula string.
+     * 
+     * @param {ASTNode} node - The root node of the sub-tree to convert.
+     * @param {number} [parentPrecedence=0] - The precedence level of the parent node (used for parenting).
+     * @returns {string} The resulting formula string.
+     */
     public static toString ( node: ASTNode, parentPrecedence = 0 ) : string {
         return this.STRINGIFIERS[ node.kind ]?.( node, parentPrecedence ) ?? '';
     }
