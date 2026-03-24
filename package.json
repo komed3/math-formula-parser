@@ -39,19 +39,24 @@
   "types": "./dist/types/index.d.ts",
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
-  "browser": "./dist/index.umd.js",
-  "jsdelivr": "./dist/index.umd.min.js",
-  "unpkg": "./dist/index.umd.min.js",
+  "browser": "./dist/bundle.js",
+  "jsdelivr": "./dist/bundle.min.js",
+  "unpkg": "./dist/bundle.min.js",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.cjs",
-      "default": "./dist/index.umd.js"
+      "default": "./dist/bundle.js"
     }
   },
   "scripts": {
-    "build": "rollup -c && tsc --emitDeclarationOnly --declarationDir dist/types && prettier --write \"dist/**/*.{mjs,cjs,js}\""
+    "clean": "shx rm -rf dist",
+    "format": "prettier --ignore-path \"\" --write \"dist/**/*.mjs\" \"dist/**/*.cjs\" \"dist/**/!(*.min).js\" \"dist/**/*.d.ts\"",
+    "rollup": "rollup -c",
+    "tsc": "tsc --emitDeclarationOnly --declarationDir dist/types",
+    "build": "npm run clean && npm run rollup && npm run tsc && npm run format",
+    "test": "node test/examples.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.2",
@@ -61,6 +66,7 @@
     "prettier": "^3.8.1",
     "rollup": "^4.60.0",
     "rollup-plugin-esbuild": "^6.2.1",
+    "shx": "^0.4.0",
     "typescript": "^6.0.2"
   }
 }
