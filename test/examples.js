@@ -1,4 +1,4 @@
-import { Formula } from '../src';
+import { Formula } from '../dist/cjs/index.cjs';
 
 const expressions = [
     'sin(pi/4)^2 + cos(pi/4)^2',
@@ -142,7 +142,7 @@ for ( const expr of expressions ) {
         console.log( '' );
         console.log( formula.visualize() );
     } catch ( e ) {
-        console.log( 'ERROR: ', ( e as unknown as Error ).message )
+        console.log( 'ERROR: ', e.message )
     }
 
     console.log( '--------------------------------------------------' );
