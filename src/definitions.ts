@@ -1,7 +1,20 @@
+/**
+ * Mathematical definitions and constants used by the lexer and parser.
+ * 
+ * This file contains the configuration for operators (precedence, associativity),
+ * a list of supported mathematical functions, and common mathematical constants.
+ * 
+ * @author Paul Köhler
+ * @license MIT
+ */
+
 import type { OperatorSpec } from './types';
 import { TokenType } from './types';
 
 
+/**
+ * List of supported operators with their precedence, associativity, and metadata.
+ */
 export const OPERATORS: OperatorSpec[] = [
     { symbol: '=', token: TokenType.EQUAL, precedence: 1, associativity: 'right', label: 'assign', description: 'assignment/comparison' },
     { symbol: '==', token: TokenType.EQUAL, precedence: 2, associativity: 'left', label: 'equal', description: 'equality' },
@@ -21,13 +34,18 @@ export const OPERATORS: OperatorSpec[] = [
     { symbol: '!', token: TokenType.NOT, precedence: 14, associativity: 'left', isPostfix: true, label: 'factorial' }
 ];
 
+/** Map of operators indexed by their mathematical symbol. */
 export const OPERATOR_BY_SYMBOL = new Map( OPERATORS.map( ( o ) => [ o.symbol, o ] ) );
+
+/** Map of operators indexed by their token type. */
 export const OPERATOR_BY_TOKEN = new Map( OPERATORS.map( ( o ) => [ o.token, o ] ) );
 
+/** Set of token types that can trigger implicit multiplication (e.g., 2x). */
 export const IMPLICIT_MULTIPLICATION_TOKENS = new Set< TokenType >( [
     TokenType.NUMBER, TokenType.IDENTIFIER, TokenType.LPAREN, TokenType.LBRACKET
 ] );
 
+/** Set of supported mathematical function names. */
 export const FUNCTIONS = new Set< string >( [
     'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh',
     'asinh', 'acosh', 'atanh',
@@ -47,6 +65,7 @@ export const FUNCTIONS = new Set< string >( [
     'next', 'prev', 'ulp'
 ] );
 
+/** Record of common mathematical constants and their values. */
 export const CONSTANTS: Record< string, number > = {
     'pi': Math.PI,
     'e': Math.E,
@@ -57,6 +76,7 @@ export const CONSTANTS: Record< string, number > = {
     'infinity': Infinity
 };
 
+/** Mapping of mathematical symbols to their corresponding function names. */
 export const FUNCTION_ALIASES: Record< string, string > = {
     'Σ': 'sum',
     'Π': 'product',
