@@ -71,6 +71,16 @@ export interface TokenPattern {
     skip?: boolean;
 }
 
+export interface AnalysisResult {
+    ast: ASTNode;
+    variables: Set< string >;  
+    constants: Set< string >;  
+    functions: Set< string >;  
+    depth: number;  
+    nodeCount: number;  
+    string: string;  
+}
+
 export interface VisualizationOptions {
     showTypes?: boolean;
     showPositions?: boolean;
