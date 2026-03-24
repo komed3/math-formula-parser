@@ -13,30 +13,45 @@ Install from npm:
 npm install math-formula-parser
 ```
 
-## Quick usage
+## Usage
 
-Import the `Formula` class and use its methods to parse and analyze formulas:
+This library is distributed in multiple formats to support various development environments:
+
+### ES Modules (ESM)
+
+The default choice for modern projects, supporting tree-shaking and modern build tools (Vite, Webpack, etc.).
 
 ```ts
 import { Formula } from 'math-formula-parser';
 
-// Parse a formula
-const formula = new Formula( 'sin(x) + 2 * pi' );
-
-// Get the AST
-const ast = formula.ast;
-
-// Analyze the formula
-const variables = formula.getVariables(); // Set { 'x' }
-const constants = formula.getConstants(); // Set { 'pi' }
-const depth = formula.getDepth();         // 4
-
-// Visualize the AST as a tree
-console.log( formula.visualize() );
-
-// Convert AST back to string
-console.log( formula.toString() ); // "sin(x) + 2 * pi"
+const formula = new Formula( 'sin(x) + pi' );
+console.log( formula.ast );
 ```
+
+### CommonJS (CJS)
+
+Specifically designed for integration into standard Node.js applications.
+
+```js
+const { Formula } = require( 'math-formula-parser' );
+
+const formula = new Formula( 'sin(x) + pi' );
+console.log( formula.ast );
+```
+
+### UMD / Browser
+
+For direct usage in the browser. You can include the script via CDN or from the `dist` folder. The library is exposed under the global variable `FormulaParser`.
+
+```html
+<script src="node_modules/math-formula-parser/dist/bundle.js"></script>
+<script>
+  const formula = new FormulaParser.Formula( 'sin(x) + pi' );
+  console.log( formula.visualize() );
+</script>
+```
+
+For production, it is recommended to use the minified version: `dist/bundle.min.js`.
 
 ## API reference
 
