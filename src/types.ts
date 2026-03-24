@@ -81,6 +81,13 @@ export interface AnalysisResult {
     string: string;  
 }
 
+export interface InstructionSet {
+    version: string;
+    constants: string[];
+    functions: string[];
+    operators: string[];
+}
+
 export interface VisualizationOptions {
     showTypes?: boolean;
     showPositions?: boolean;
