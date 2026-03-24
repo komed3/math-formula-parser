@@ -10,7 +10,7 @@
  */
 
 import type { ASTNode } from './ast';
-import type { AnalysisResult, VisualizationOptions } from './types';
+import type { AnalysisResult, InstructionSet, VisualizationOptions } from './types';
 import { CONSTANTS, FUNCTIONS, OPERATORS } from './definitions';
 import { Lexer } from './lexer';
 import { Parser } from './parser';
@@ -43,7 +43,7 @@ export class Formula {
      * 
      * @param {ASTNode} ast - The root node of the AST to traverse.
      * @param {( node: ASTNode ) => string | undefined} mapper - A function that returns a value to collect for each node.
-     * @returns {Set<string>} A set of unique collected values.
+     * @returns {Set< string >} A set of unique collected values.
      */
     private collect ( ast: ASTNode, mapper: ( node: ASTNode ) => string | undefined ) : Set< string > {
         const result = new Set< string >();
@@ -148,7 +148,7 @@ export class Formula {
      * Extracts all unique variable names from the formula's AST.
      * 
      * @param {ASTNode} [ast] - An optional AST node to analyze.
-     * @returns {Set<string>} A set containing the names of all variables found.
+     * @returns {Set< string >} A set containing the names of all variables found.
      */
     public getVariables ( ast?: ASTNode ) : Set< string > {
         return this.collect( ast ?? this.ast, n => n.kind === 'identifier' ? n.props.name : undefined );
@@ -158,7 +158,7 @@ export class Formula {
      * Extracts all unique constant names from the formula's AST.
      * 
      * @param {ASTNode} [ast] - An optional AST node to analyze.
-     * @returns {Set<string>} A set containing the names of all constants found.
+     * @returns {Set< string >} A set containing the names of all constants found.
      */
     public getConstants ( ast?: ASTNode ) : Set< string > {
         return this.collect( ast ?? this.ast, n => n.kind === 'constant' ? n.props.name : undefined );
@@ -168,7 +168,7 @@ export class Formula {
      * Extracts all unique function names from the formula's AST.
      * 
      * @param {ASTNode} [ast] - An optional AST node to analyze.
-     * @returns {Set<string>} A set containing the names of all functions found.
+     * @returns {Set< string >} A set containing the names of all functions found.
      */
     public getFunctions ( ast?: ASTNode ) : Set< string > {
         return this.collect( ast ?? this.ast, n => n.kind === 'function' ? n.props.name : undefined );
@@ -224,9 +224,9 @@ export class Formula {
     /**
      * Returns an overview of the supported instruction set including versions and operators.
      * 
-     * @returns {object} An object containing version, constants, functions, and operators.
+     * @returns {InstructionSet} An object containing version, constants, functions, and operators.
      */
-    public static instructionSet () {
+    public static instructionSet () : InstructionSet {
         return {
           version: '0.1.0',
           constants: Object.keys( CONSTANTS ),
@@ -238,9 +238,9 @@ export class Formula {
     /**
      * Returns a list of all available mathematical constants.
      * 
-     * @returns {Record<string, number>} A record of available constants and their values.
+     * @returns {Record< string, number >} A record of available constants and their values.
      */
-    public static availableConstants () {
+    public static availableConstants () : Record< string, number > {
         return { ...CONSTANTS };
     }
 
@@ -249,7 +249,7 @@ export class Formula {
      * 
      * @returns {string[]} An array of supported function names.
      */
-    public static availableFunctions () {
+    public static availableFunctions () : string[]{
         return Array.from( FUNCTIONS ).sort();
     }
 
