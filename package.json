@@ -36,20 +36,31 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "browser": "./dist/index.umd.js",
+  "jsdelivr": "./dist/index.umd.min.js",
+  "unpkg": "./dist/index.umd.min.js",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs",
+      "default": "./dist/index.umd.js"
     }
   },
   "scripts": {
-    "build": "tsc && tsc-alias"
+    "build": "rollup -c && tsc --emitDeclarationOnly --declarationDir dist/types && prettier --write \"dist/**/*.{mjs,cjs,js}\""
   },
   "devDependencies": {
-    "tsc-alias": "^1.8.16",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.0",
+    "esbuild": "^0.27.4",
+    "prettier": "^3.8.1",
+    "rollup": "^4.60.0",
+    "rollup-plugin-esbuild": "^6.2.1",
     "typescript": "^6.0.2"
   }
 }
