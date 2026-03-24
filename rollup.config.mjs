@@ -90,11 +90,11 @@ export default [
         } ],
         plugins
     },
-    // 2. UMD bundle for direct usage in browser (index.umd.js)
+    // 2. UMD bundle for direct usage in browser (bundle.js)
     {
         input: 'src/index.ts',
         output: {
-            file: 'dist/index.umd.js',
+            file: 'dist/bundle.js',
             format: 'umd',
             name,
             exports: 'named',
@@ -103,11 +103,11 @@ export default [
         },
         plugins
     },
-    // 3. Minified UMD bundle (index.umd.min.js)
+    // 3. Minified UMD bundle (bundle.min.js)
     {
         input: 'src/index.ts',
         output: {
-            file: 'dist/index.umd.min.js',
+            file: 'dist/bundle.min.js',
             format: 'umd',
             name,
             exports: 'named',
