@@ -67,6 +67,6 @@
     "rollup": "^4.60.0",
     "rollup-plugin-esbuild": "^6.2.1",
     "shx": "^0.4.0",
-    "typescript": "^6.0.2"
+    "typescript": "^7.0.2"
   }
 }
